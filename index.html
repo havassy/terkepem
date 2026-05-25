@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>diak-terkepi-gyakorlo-3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: 0.76rem;
+      --text-sm: 0.84rem;
+      --text-base: 0.94rem;
+      --text-lg: 1.05rem;
+      --text-xl: 1.9rem;
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-border: #d4d1ca; --color-divider: #dcd9d5;
+      --color-text: #28251d; --color-text-muted: #676660; --color-text-inverse: #f9f8f4; --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-success: #437a22; --color-warning: #964219; --color-error: #a12c7b;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --font-body: 'Inter', system-ui, sans-serif;
+      --topbar-height: 68px;
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-surface-offset: #1d1c1a; --color-border: #393836; --color-divider: #262523;
+      --color-text: #cdccca; --color-text-muted: #a5a4a1; --color-text-inverse: #171614; --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-success: #6daa45; --color-warning: #bb653b; --color-error: #d163a7;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: 1.35;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+    button, input, select, textarea { font: inherit; }
+    textarea { resize: vertical; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .panel {
+      background: var(--color-surface);
+      border-right: 1px solid var(--color-border);
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: var(--space-3);
+      scrollbar-gutter: stable;
+    }
+    .panel-scroll {
+      display: grid;
+      gap: var(--space-2);
+      align-content: start;
+      min-height: min-content;
+      padding-right: 2px;
+    }
+    .main {
+      display: grid;
+      grid-template-rows: var(--topbar-height) 1fr;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      background: color-mix(in srgb, var(--color-surface-2) 88%, transparent);
+    }
+    .brand { display: flex; align-items: center; gap: var(--space-2); min-width: 0; overflow: hidden; }
+    .logo { width: 34px; height: 34px; border-radius: 9px; background: var(--color-primary); color: var(--color-text-inverse); display: grid; place-items: center; flex: 0 0 auto; }
+    .logo svg { width: 18px; height: 18px; }
+    h1 { font-size: var(--text-xl); line-height: 1.02; margin: 0; }
+    h2 { font-size: var(--text-lg); line-height: 1.1; margin: 0 0 var(--space-1); }
+    h3 { margin: 0; font-size: 1rem; }
+    p { margin: 0; color: var(--color-text-muted); }
+    .muted { color: var(--color-text-muted); }
+    .tiny { font-size: var(--text-xs); }
+    .stack { display: grid; gap: var(--space-2); min-height: 0; }
+    .compact { gap: var(--space-1); }
+    .card {
+      background: var(--color-surface-2);
+      border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn, .file-label {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
+      min-height: 38px; padding: 0 var(--space-3); border-radius: var(--radius-md); border: 1px solid transparent;
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+    }
+    .btn:hover, .file-label:hover { transform: translateY(-1px); }
+    .btn-primary, .file-label { background: var(--color-primary); color: var(--color-text-inverse); }
+    .btn-primary:hover, .file-label:hover { background: var(--color-primary-hover); }
+    .btn-secondary { background: var(--color-surface-offset); color: var(--color-text); border-color: var(--color-border); }
+    .btn-secondary:hover { background: var(--color-surface-2); }
+    .btn-ghost { background: transparent; color: var(--color-text); border-color: var(--color-border); }
+    .controls { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .controls > * { flex: 1 1 150px; min-width: 0; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+    .stat { background: var(--color-surface-offset); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius: var(--radius-md); padding: var(--space-2); }
+    .stat .value { font-weight: 700; font-size: 1.05rem; color: var(--color-text); margin-top: 2px; }
+    label { display: grid; gap: 0.2rem; font-size: var(--text-sm); font-weight: 600; }
+    input[type="number"], select, textarea {
+      width: 100%; min-height: 38px; padding: 0.4rem 0.6rem; border-radius: var(--radius-md);
+      border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text);
+    }
+    textarea { min-height: 88px; }
+    #pasteTypeSelect {
+      white-space: normal;
+      line-height: 1.15;
+      height: auto;
+      min-height: 38px;
+    }
+    input[type="file"] { display: none; }
+    .quiz-box {
+      display: grid; gap: var(--space-1); padding: var(--space-2);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 9%, var(--color-surface-2)), var(--color-surface-2));
+      border: 1px solid color-mix(in srgb, var(--color-primary) 24%, transparent); border-radius: var(--radius-lg);
+    }
+    .place-name { font-weight: 700; color: var(--color-text); font-size: 1.02rem; line-height: 1.18; }
+    .feedback-ok { color: var(--color-success); }
+    .feedback-warn { color: var(--color-warning); }
+    .feedback-bad { color: var(--color-error); }
+    .map-wrap { position: relative; min-height: 0; background: #dbe7ee; }
+    #map { width: 100%; height: calc(100vh - var(--topbar-height)); }
+    .map-overlay {
+      position: absolute; right: var(--space-3); bottom: var(--space-3); z-index: 500;
+      width: min(300px, calc(100% - 1rem));
+      background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-2);
+      backdrop-filter: blur(10px);
+    }
+    .help-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 700;
+      overflow: auto;
+      padding: var(--space-4);
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface-2) 96%, transparent));
+    }
+    .help-screen[hidden] { display: none; }
+    .help-card {
+      max-width: 980px;
+      margin: 0 auto;
+      background: color-mix(in srgb, var(--color-surface-2) 96%, transparent);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-4);
+    }
+    .help-hero {
+      display: grid;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-offset)), var(--color-surface-2));
+      border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+    }
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+    .help-block {
+      background: var(--color-surface);
+      border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3);
+      display: grid;
+      gap: var(--space-2);
+    }
+    .help-block.full { grid-column: 1 / -1; }
+    .help-block ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--color-text-muted);
+    }
+    .help-block li + li { margin-top: 0.35rem; }
+    .help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      justify-content: space-between;
+      align-items: center;
+    }
+    .help-note {
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
+      border: 1px solid color-mix(in srgb, var(--color-warning) 26%, transparent);
+      color: var(--color-text);
+    }
+    .code-box {
+      margin: 0;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-offset);
+      border: 1px solid var(--color-border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      line-height: 1.45;
+      overflow: auto;
+      white-space: pre-wrap;
+      color: var(--color-text);
+    }
+    .list { display: grid; gap: 0.15rem; max-height: 72px; overflow: auto; }
+    .pill { display: inline-flex; align-items: center; min-height: 22px; padding: 0 var(--space-2); border-radius: var(--radius-full); background: color-mix(in srgb, var(--color-primary) 14%, transparent); color: var(--color-primary); font-size: var(--text-xs); font-weight: 700; width: fit-content; }
+    .theme-toggle { min-width: 38px; min-height: 38px; }
+    .status-line { min-height: 18px; font-size: var(--text-sm); }
+    .danger { color: var(--color-error); }
+    .success { color: var(--color-success); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95em; }
+    .leaflet-container { background: #dbe7ee; }
+    .leaflet-tooltip { display: none !important; }
+    @media (max-width: 960px) {
+      html, body { overflow: auto; height: auto; }
+      .app { grid-template-columns: 1fr; height: auto; overflow: visible; }
+      .panel { border-right: none; border-bottom: 1px solid var(--color-border); overflow: visible; }
+      .main { overflow: visible; }
+      #map { height: 68vh; min-height: 420px; }
+      .help-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="sr-only">Ugrás a tartalomhoz</a>
+  <div class="app">
+    <aside class="panel" aria-label="Vezérlőpanel">
+      <div class="panel-scroll">
+        <section class="stack compact">
+          <span class="pill">Prototípus</span>
+          <h1>Térképes helyismereti kvíz</h1>
+          <p class="tiny">CSV vagy KML betöltésből, illetve egyszerű beillesztéssel is használható.</p>
+        </section>
+
+        <section class="card stack compact">
+          <h2>Adatbevitel</h2>
+          <div class="controls">
+            <label for="fileInput" class="file-label">Fájl kiválasztása</label>
+            <input id="fileInput" type="file" accept=".csv,.kml,.xml,text/csv,application/vnd.google-earth.kml+xml" />
+            <button class="btn btn-secondary" id="loadDemoBtn" type="button">Demóadat</button>
+          </div>
+          <label>
+            Vagy illeszd be ide a CSV vagy KML tartalmát
+            <textarea id="pasteInput" placeholder="Példa CSV:\nname,latitude,longitude,type\nBudapest,47.4979,19.0402,város"></textarea>
+          </label>
+          <div class="controls">
+            <button class="btn btn-primary" id="loadPasteBtn" type="button">Beillesztett adat betöltése</button>
+            <select id="pasteTypeSelect" aria-label="Beillesztett adat típusa">
+              <option value="auto">Automatikus&#10;felismerés</option>
+              <option value="csv">CSV</option>
+              <option value="kml">KML</option>
+            </select>
+          </div>
+          <div id="fileInfo" class="tiny muted">Még nincs betöltött adat.</div>
+          <div id="statusLine" class="status-line muted">Várakozás adatra.</div>
+        </section>
+
+        <section class="card stack compact">
+          <h2>Adatellenőrzés</h2>
+          <div class="grid-2">
+            <div class="stat"><div class="tiny muted">Összes rekord</div><div class="value" id="statAll">0</div></div>
+            <div class="stat"><div class="tiny muted">Használható</div><div class="value" id="statValid">0</div></div>
+            <div class="stat"><div class="tiny muted">Kihagyott</div><div class="value" id="statInvalid">0</div></div>
+            <div class="stat"><div class="tiny muted">Lejátszott</div><div class="value" id="statPlayed">0</div></div>
+          </div>
+          <div>
+            <div class="tiny muted">Kimaradt rekordok</div>
+            <div id="invalidList" class="list tiny muted"></div>
+          </div>
+        </section>
+
+        <section class="quiz-box">
+          <div class="tiny muted">Aktuális feladat</div>
+          <div class="place-name" id="questionText">Még nincs kérdés.</div>
+          <div class="tiny" id="questionMeta">Tölts be adatot, majd indítsd el a kvízt.</div>
+          <div id="resultText" class="status-line muted">A távolságmérés itt fog megjelenni.</div>
+          <div class="controls">
+            <button class="btn btn-primary" id="startBtn" type="button" disabled>Kvíz indítása</button>
+            <button class="btn btn-ghost" id="nextBtn" type="button" disabled>Következő hely</button>
+            <button class="btn btn-ghost" id="showAnswerBtn" type="button" disabled>Megoldás mutatása</button>
+          </div>
+        </section>
+
+        <section class="card stack compact">
+          <h2>Beállítás</h2>
+          <label>
+            Találati küszöb (km)
+            <input id="thresholdInput" type="number" min="1" step="1" value="50" />
+          </label>
+          <label>
+            Kérdéssorrend
+            <select id="modeSelect">
+              <option value="random">Véletlen, ismétlés nélkül</option>
+              <option value="sequential">Betöltési sorrendben</option>
+            </select>
+          </label>
+          <label>
+            Alaptérkép
+            <select id="basemapSelect">
+              <option value="carto-nolabels">CARTO Positron, feliratok nélkül</option>
+              <option value="osm">OpenStreetMap alap</option>
+              <option value="carto-dark-nolabels">CARTO Dark Matter, feliratok nélkül</option>
+            </select>
+          </label>
+        </section>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 8l8-4 8 4-8 4-8-4Z"></path>
+              <path d="M4 8v8l8 4 8-4V8"></path>
+              <path d="M12 12v8"></path>
+            </svg>
+          </div>
+          <div>
+            <div style="font-weight:700; line-height:1.1;">diak-terkepi-gyakorlo-3</div>
+            <div class="tiny muted" style="line-height:1.15;">Leaflet + OpenStreetMap alapú kliensoldali prototípus</div>
+          </div>
+        </div>
+        <div class="controls" style="justify-content:flex-end; flex-wrap:nowrap; flex:0 0 auto;">
+          <button class="btn btn-secondary" id="helpBtn" type="button">Súgó</button>
+          <button class="btn btn-secondary theme-toggle" id="themeToggle" type="button" aria-label="Téma váltása">🌙</button>
+        </div>
+      </header>
+      <div class="map-wrap">
+        <div id="map" aria-label="Kvíztérkép"></div>
+
+        <section id="helpScreen" class="help-screen" aria-label="Felhasználói útmutató">
+          <div class="help-card">
+            <div class="help-hero">
+              <span class="pill">Felhasználói útmutató</span>
+              <h2>Így használd a térképes földrajzi kvízt</h2>
+              <p>A program földrajzi helyekből készít térképes kvízt. Használatához egy egyszerű CSV-adatlista kell, amelyben minden hely külön sorban szerepel.</p>
+            </div>
+
+            <div class="help-grid">
+              <section class="help-block">
+                <h3>Milyen adat kell?</h3>
+                <p>A program a legbiztosabban ezt a formátumot kezeli:</p>
+                <pre class="code-box">name,latitude,longitude,type
+Magyarország,47.1625,19.5033,ország
+Budapest,47.4979,19.0402,város
+Balaton,46.8300,17.7200,tó
+Duna,45.2700,28.9700,folyó
+Kékes,47.8720,20.0080,hegy
+Mátra,47.8700,20.0000,hegység</pre>
+              </section>
+
+              <section class="help-block">
+                <h3>Mit jelentenek az oszlopok?</h3>
+                <ul>
+                  <li><code>name</code>: a hely neve</li>
+                  <li><code>latitude</code>: földrajzi szélesség decimális fokban</li>
+                  <li><code>longitude</code>: földrajzi hosszúság decimális fokban</li>
+                  <li><code>type</code>: a hely típusa, például ország, város, folyó, tó, hegység, hegy, sziget, régió, megye, egyéb</li>
+                </ul>
+              </section>
+
+              <section class="help-block full">
+                <h3>Hogyan készíthetek ilyen adatot?</h3>
+                <p>A legegyszerűbb megoldás, ha a gyakorolni kívánt földrajzi neveket bemásolod egy MI-nek, és kéred, hogy készítsen belőlük többsoros CSV-t a szükséges oszlopokkal. Ezután a kapott CSV-t bemásolhatod közvetlenül a programba, vagy elmentheted <code>.csv</code> fájlként. Ha bemásolod a CSV-szöveget, nagyon fontos, hogy karakterre pontosan másold be, mert egy kimaradt, megváltozott vagy plusz karakter esetén a program hibát jelezhet.</p>
+              </section>
+
+              <section class="help-block full">
+                <h3>Mintaprompt MI-hez</h3>
+                <pre class="code-box">Készíts egy földrajzi/helyismereti kvízhez használható, tiszta és egységes adatállományt CSV formátumban.
+
+A kimenet kötelező oszlopai:
+name,latitude,longitude,type
+
+Szabályok:
+- A `name` mezőbe az objektum rövid, egyértelmű magyar neve kerüljön.
+- A `latitude` és `longitude` mezőbe decimális fokban add meg a koordinátákat.
+- Csak olyan rekord maradjon benne, amelyhez megbízható koordináta tartozik.
+- Ha nincs biztos koordináta, inkább hagyd ki a rekordot.
+- A `type` mezőt minden rekordnál kötelező kitölteni.
+- A `type` mező csak az alábbi értékek egyikét kaphatja:
+  ország, város, folyó, tó, hegység, hegy, sziget, régió, megye, egyéb
+- Ha az objektum típusa egyértelműen megállapítható, a fenti listából a legjobban illő kategóriát használd.
+- Ha nincs megfelelő kategória, vagy a besorolás bizonytalan, akkor a `type` értéke legyen: egyéb
+- Ne használj eltérő írásmódokat vagy szinonimákat, például ne írj ilyet: település, varos, nagyváros, county, settlement. Ezek helyett mindig a megadott fix kategóriák egyikét használd.
+- Folyók esetén a koordináta a torkolat környékére essen, de ne közvetlenül a tengerparti vagy nyílt vízi találkozási pontra; a pont legyen kissé a folyón felfelé, még egyértelműen a folyó medrében vagy közvetlen folyószakaszán.
+- A válasz több soros, valódi CSV legyen, minden rekord külön új sorban szerepeljen.
+- Ne szerepeljen magyarázó szöveg, csak a kész CSV.
+
+A válasz kizárólag a kész CSV legyen.
+
+A feldolgozandó helyek:
+IDE ÍRD A SAJÁT HELYLISTÁDAT</pre>
+              </section>
+
+              <section class="help-block">
+                <h3>Példa helylistára</h3>
+                <pre class="code-box">A feldolgozandó helyek:
+Magyarország
+Budapest
+Balaton
+Duna
+Kékes
+Mátra
+Szeged
+Tisza</pre>
+              </section>
+
+              <section class="help-block">
+                <h3>Hogyan töltsd be?</h3>
+                <p>A kapott CSV-t bemásolhatod a program szövegmezőjébe, majd kattints a „Beillesztett adat betöltése” gombra. Ugyanezt <code>.csv</code> fájlként is feltöltheted a „Fájl kiválasztása” gombbal.</p>
+              </section>
+
+              <section class="help-block full">
+                <h3>Fontos figyelmeztetés</h3>
+                <div class="help-note">Az MI által megadott koordináták nem mindig pontosak. Különösen folyók, hegységek, régiók vagy nagy kiterjedésű földrajzi objektumok esetén érdemes az adatokat ellenőrizni térképen, mielőtt élesben használod a kvízt.</div>
+              </section>
+
+              <section class="help-block full">
+                <h3>Használati tanács</h3>
+                <p>Kezdésnek érdemes 5–15 helyből álló listával próbálkozni. Ha a program nem tud egy sort használni, annak oka általában hiányzó vagy hibás koordináta, vagy rossz CSV-formátum.</p>
+              </section>
+            </div>
+
+            <div class="help-actions">
+              <p class="tiny muted">A súgó később a felső „Súgó” gombbal újra megnyitható.</p>
+              <button class="btn btn-primary" id="closeHelpBtn" type="button">Értem, a térképre lépek</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="map-overlay stack" aria-live="polite">
+          <div>
+            <div class="tiny muted">Utolsó eredmény</div>
+            <div id="overlayDistance" style="font-weight:700;">—</div>
+          </div>
+          <div>
+            <div class="tiny muted">Pontosság</div>
+            <div id="overlayAccuracy">—</div>
+          </div>
+          <div>
+            <div class="tiny muted">Helyes válasz</div>
+            <div id="overlayAnswer">—</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const els = {
+        fileInput: document.getElementById('fileInput'),
+        loadDemoBtn: document.getElementById('loadDemoBtn'),
+        pasteInput: document.getElementById('pasteInput'),
+        loadPasteBtn: document.getElementById('loadPasteBtn'),
+        pasteTypeSelect: document.getElementById('pasteTypeSelect'),
+        fileInfo: document.getElementById('fileInfo'),
+        statusLine: document.getElementById('statusLine'),
+        statAll: document.getElementById('statAll'),
+        statValid: document.getElementById('statValid'),
+        statInvalid: document.getElementById('statInvalid'),
+        statPlayed: document.getElementById('statPlayed'),
+        invalidList: document.getElementById('invalidList'),
+        questionText: document.getElementById('questionText'),
+        questionMeta: document.getElementById('questionMeta'),
+        resultText: document.getElementById('resultText'),
+        startBtn: document.getElementById('startBtn'),
+        nextBtn: document.getElementById('nextBtn'),
+        showAnswerBtn: document.getElementById('showAnswerBtn'),
+        thresholdInput: document.getElementById('thresholdInput'),
+        modeSelect: document.getElementById('modeSelect'),
+        basemapSelect: document.getElementById('basemapSelect'),
+        overlayDistance: document.getElementById('overlayDistance'),
+        overlayAccuracy: document.getElementById('overlayAccuracy'),
+        overlayAnswer: document.getElementById('overlayAnswer'),
+        themeToggle: document.getElementById('themeToggle'),
+        helpScreen: document.getElementById('helpScreen'),
+        helpBtn: document.getElementById('helpBtn'),
+        closeHelpBtn: document.getElementById('closeHelpBtn')
+      };
+
+      const state = {
+        rawRecords: [], validRecords: [], invalidRecords: [], remainingIndexes: [], currentIndex: null,
+        played: 0, quizActive: false, answerShown: false, answerMarker: null, guessMarker: null, line: null,
+        mapClickEnabled: false, basemaps: {}, activeBasemap: null,
+        dataBounds: null, helpVisible: true
+      };
+
+      const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([47.2, 19.3], 6);
+      state.basemaps = {
+        'carto-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO' }),
+        'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap közreműködők' }),
+        'carto-dark-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO' })
+      };
+      state.activeBasemap = state.basemaps['carto-nolabels'].addTo(map);
+      const pointsLayer = L.layerGroup().addTo(map);
+
+      const theme = { current: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' };
+      document.documentElement.setAttribute('data-theme', theme.current);
+      els.themeToggle.textContent = theme.current === 'dark' ? '☀️' : '🌙';
+      els.themeToggle.addEventListener('click', () => {
+        theme.current = theme.current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme.current);
+        els.themeToggle.textContent = theme.current === 'dark' ? '☀️' : '🌙';
+      });
+
+      function setBasemap(key) {
+        const next = state.basemaps[key];
+        if (!next) return;
+        if (state.activeBasemap) map.removeLayer(state.activeBasemap);
+        state.activeBasemap = next.addTo(map);
+      }
+      els.basemapSelect.addEventListener('change', () => setBasemap(els.basemapSelect.value));
+
+      function showHelp() {
+        state.helpVisible = true;
+        els.helpScreen.hidden = false;
+      }
+      function hideHelp() {
+        state.helpVisible = false;
+        els.helpScreen.hidden = true;
+        map.invalidateSize();
+        if (state.dataBounds && state.dataBounds.isValid()) {
+          map.fitBounds(state.dataBounds);
+        } else {
+          map.setView([47.2, 19.3], 6);
+        }
+      }
+      els.helpBtn.addEventListener('click', showHelp);
+      els.closeHelpBtn.addEventListener('click', hideHelp);
+
+      function setStatus(text, cls = 'muted') { els.statusLine.className = `status-line ${cls}`; els.statusLine.textContent = text; }
+      function escapeHtml(text) { return String(text ?? '').replace(/[&<>\"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+      function normalizeName(record) { return record.Name || record.name || record.Név || record.nev || record.Place || record.place || record.Title || 'Névtelen hely'; }
+      function parseFloatSafe(value) { if (value === null || value === undefined || value === '') return null; const normalized = String(value).trim().replace(',', '.'); const num = Number(normalized); return Number.isFinite(num) ? num : null; }
+      function getLat(record) { return parseFloatSafe(record.Latitude ?? record.latitude ?? record.lat ?? record.Lat ?? record.y); }
+      function getLng(record) { return parseFloatSafe(record.Longitude ?? record.longitude ?? record.lng ?? record.lon ?? record.Lon ?? record.Long ?? record.x); }
+      function validCoord(lat, lng) { return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180; }
+
+      function updateStats() {
+        els.statAll.textContent = state.rawRecords.length;
+        els.statValid.textContent = state.validRecords.length;
+        els.statInvalid.textContent = state.invalidRecords.length;
+        els.statPlayed.textContent = state.played;
+        els.invalidList.innerHTML = state.invalidRecords.length
+          ? state.invalidRecords.slice(0, 6).map(item => `<div>${escapeHtml(item.name || 'Ismeretlen rekord')} – ${escapeHtml(item.reason || 'hibás rekord')}</div>`).join('')
+          : '<div>Nincs kihagyott rekord.</div>';
+      }
+      function resetMapGraphics() {
+        if (state.answerMarker) { map.removeLayer(state.answerMarker); state.answerMarker = null; }
+        if (state.guessMarker) { map.removeLayer(state.guessMarker); state.guessMarker = null; }
+        if (state.line) { map.removeLayer(state.line); state.line = null; }
+      }
+      function clearQuizState() {
+        resetMapGraphics();
+        state.currentIndex = null; state.quizActive = false; state.answerShown = false; state.mapClickEnabled = false;
+        els.questionText.textContent = 'Még nincs kérdés.';
+        els.questionMeta.textContent = 'Tölts be adatot, majd indítsd el a kvízt.';
+        els.resultText.textContent = 'A távolságmérés itt fog megjelenni.';
+        els.resultText.className = 'status-line muted';
+        els.overlayDistance.textContent = '—'; els.overlayAccuracy.textContent = '—'; els.overlayAnswer.textContent = '—';
+        els.nextBtn.disabled = true; els.showAnswerBtn.disabled = true;
+      }
+      function haversineKm(lat1, lon1, lat2, lon2) {
+        const R = 6371, toRad = deg => deg * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+      function classifyDistance(distanceKm) {
+        const threshold = Math.max(1, Number(els.thresholdInput.value) || 50);
+        if (distanceKm <= threshold) return { text: 'Találat', cls: 'feedback-ok' };
+        if (distanceKm <= threshold * 3) return { text: 'Közel volt', cls: 'feedback-warn' };
+        return { text: 'Messze volt', cls: 'feedback-bad' };
+      }
+      function fitToValidRecords() {
+        if (!state.validRecords.length) return;
+        const bounds = L.latLngBounds(state.validRecords.map(r => [r.lat, r.lng]));
+        if (!bounds.isValid()) return;
+        state.dataBounds = bounds.pad(0.18);
+        if (!state.helpVisible) map.fitBounds(state.dataBounds);
+      }
+      function resetViewToDataBounds() {
+        if (state.dataBounds && state.dataBounds.isValid() && !state.helpVisible) {
+          map.fitBounds(state.dataBounds);
+        }
+      }
+      function refreshButtons() {
+        const hasData = state.validRecords.length > 0;
+        els.startBtn.disabled = !hasData;
+        els.nextBtn.disabled = !hasData || !state.quizActive;
+        els.showAnswerBtn.disabled = !hasData || !state.quizActive || state.answerShown;
+      }
+      function rebuildRemaining() { state.remainingIndexes = state.validRecords.map((_, idx) => idx); }
+      function nextQuestion() {
+        if (!state.validRecords.length) return setStatus('Nincs használható rekord.', 'danger');
+        if (!state.remainingIndexes.length) rebuildRemaining();
+
+        hideHelp();
+        resetMapGraphics();
+        resetViewToDataBounds();
+        state.answerShown = false;
+        state.mapClickEnabled = true;
+        state.quizActive = true;
+        const mode = els.modeSelect.value;
+        let pickPos = 0; if (mode === 'random') pickPos = Math.floor(Math.random() * state.remainingIndexes.length);
+        state.currentIndex = state.remainingIndexes.splice(pickPos, 1)[0];
+        const rec = state.validRecords[state.currentIndex];
+        els.questionText.textContent = rec.name;
+        els.questionMeta.textContent = 'Kattints a térképre a feltételezett helyen.';
+        els.resultText.textContent = ''; els.resultText.className = 'status-line muted';
+        els.overlayDistance.textContent = '—'; els.overlayAccuracy.textContent = '—'; els.overlayAnswer.textContent = '—';
+        refreshButtons();
+      }
+      function showAnswerOnMap(record) {
+        if (state.answerMarker) return;
+        state.answerMarker = L.circleMarker([record.lat, record.lng], { radius: 9, color: '#1f7a1f', weight: 3, fillColor: '#1f7a1f', fillOpacity: 0.28 }).addTo(map).bindPopup(`Helyes válasz: ${escapeHtml(record.name)}`);
+        els.overlayAnswer.textContent = `${record.name} (${record.lat.toFixed(4)}, ${record.lng.toFixed(4)})`;
+      }
+      function handleGuess(latlng) {
+        if (!state.mapClickEnabled || state.currentIndex === null || state.helpVisible) return;
+        const rec = state.validRecords[state.currentIndex];
+        state.mapClickEnabled = false;
+        state.answerShown = true;
+        state.played += 1;
+        resetMapGraphics();
+
+        const distanceKm = haversineKm(latlng.lat, latlng.lng, rec.lat, rec.lng);
+        const rating = classifyDistance(distanceKm);
+
+        state.guessMarker = L.marker([latlng.lat, latlng.lng]).addTo(map).bindPopup('A tipped');
+        state.answerMarker = L.circleMarker([rec.lat, rec.lng], {
+          radius: 9,
+          color: '#1f7a1f',
+          weight: 3,
+          fillColor: '#1f7a1f',
+          fillOpacity: 0.28
+        }).addTo(map).bindPopup(`Helyes: ${escapeHtml(rec.name)}`);
+
+        state.line = L.polyline(
+          [[latlng.lat, latlng.lng], [rec.lat, rec.lng]],
+          { color: '#b4551a', weight: 3, dashArray: '8 6' }
+        ).addTo(map);
+
+        const guessAnswerBounds = L.latLngBounds([
+          [latlng.lat, latlng.lng],
+          [rec.lat, rec.lng]
+        ]);
+        map.fitBounds(guessAnswerBounds.pad(0.35));
+
+        els.resultText.textContent = `${rating.text}: ${distanceKm.toFixed(1)} km.`;
+        els.resultText.className = `status-line ${rating.cls}`;
+        els.overlayDistance.textContent = `${distanceKm.toFixed(1)} km`;
+        els.overlayAccuracy.textContent = rating.text;
+        els.overlayAnswer.textContent = `${rec.name} (${rec.lat.toFixed(4)}, ${rec.lng.toFixed(4)})`;
+
+        updateStats();
+        refreshButtons();
+      }
+      map.on('click', e => handleGuess(e.latlng));
+
+      function useRecords(records, sourceLabel) {
+        state.rawRecords = records; state.validRecords = []; state.invalidRecords = []; state.played = 0;
+        records.forEach((record, idx) => {
+          const name = normalizeName(record), lat = getLat(record), lng = getLng(record);
+          if (!validCoord(lat, lng)) return state.invalidRecords.push({ name, reason: 'hiányzó vagy hibás koordináta', raw: record, index: idx });
+          state.validRecords.push({ name, lat, lng, country: record.Country || record.country || record.Ország || '', region: record.Region || record.region || record.Megye || '', type: record.Type || record.type || '', raw: record });
+        });
+        rebuildRemaining(); clearQuizState(); updateStats(); refreshButtons(); fitToValidRecords(); pointsLayer.clearLayers();
+        state.validRecords.forEach(rec => L.circleMarker([rec.lat, rec.lng], { radius: 4, weight: 1, color: '#01696f', fillColor: '#01696f', fillOpacity: 0.5, interactive: false }).addTo(pointsLayer));
+        els.fileInfo.textContent = `${sourceLabel} · ${state.validRecords.length} használható / ${state.rawRecords.length} összes rekord`;
+        setStatus(state.validRecords.length ? 'Az adat betöltve, indítható a kvíz.' : 'A beolvasás sikerült, de nincs használható koordinátás rekord.', state.validRecords.length ? 'success' : 'danger');
+        if (state.validRecords.length) hideHelp();
+      }
+      function parseCsv(text, sourceLabel) {
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, dynamicTyping: false });
+        if (parsed.errors?.length && !parsed.data?.length) throw new Error('A CSV nem olvasható be.');
+        useRecords(parsed.data || [], sourceLabel);
+      }
+      function parseKml(text, sourceLabel) {
+        const xml = new DOMParser().parseFromString(text, 'application/xml');
+        const parserError = xml.querySelector('parsererror');
+        if (parserError) throw new Error('A KML/XML fájl hibás.');
+        const placemarks = [...xml.getElementsByTagName('Placemark')];
+        const records = placemarks.map(pm => {
+          const name = pm.getElementsByTagName('name')[0]?.textContent?.trim() || 'Névtelen hely';
+          const coords = pm.getElementsByTagName('coordinates')[0]?.textContent?.trim() || '';
+          let lng = null, lat = null;
+          if (coords) { const parts = coords.split(/\s+/)[0].split(','); lng = parseFloatSafe(parts[0]); lat = parseFloatSafe(parts[1]); }
+          return { Name: name, Latitude: lat, Longitude: lng };
+        });
+        useRecords(records, sourceLabel);
+      }
+      function detectPasteType(text) {
+        const choice = els.pasteTypeSelect.value;
+        if (choice !== 'auto') return choice;
+        const t = text.trim();
+        if (t.startsWith('<') && /<kml|<Placemark|<Document/i.test(t)) return 'kml';
+        return 'csv';
+      }
+      function loadText(text, sourceLabel) {
+        const type = detectPasteType(text);
+        if (type === 'kml') parseKml(text, sourceLabel); else parseCsv(text, sourceLabel);
+      }
+      function loadFile(file) {
+        const reader = new FileReader();
+        reader.onload = () => { try { loadText(String(reader.result || ''), file.name || 'ismeretlen fájl'); } catch (err) { clearQuizState(); setStatus(err.message || 'Hiba történt a beolvasáskor.', 'danger'); } };
+        reader.onerror = () => setStatus('Nem sikerült beolvasni a fájlt.', 'danger');
+        reader.readAsText(file, 'utf-8');
+      }
+      const demoCsv = `name,latitude,longitude,type\nBudapest,47.4979,19.0402,város\nSzeged,46.2530,20.1414,város\nPécs,46.0727,18.2323,város\nDebrecen,47.5316,21.6273,város\nBalaton,46.8333,17.7333,tó\nTokaj,48.1190,21.4080,város\nKékes,47.8722,20.0106,hegy\nGyőr,47.6875,17.6504,város\nMiskolc,48.1031,20.7784,város\nSopron,47.6817,16.5845,város\nPontatlan példa,,,egyéb`;
+      els.fileInput.addEventListener('change', e => { const file = e.target.files?.[0]; if (file) loadFile(file); });
+      els.loadDemoBtn.addEventListener('click', () => loadText(demoCsv, 'demó.csv'));
+      els.loadPasteBtn.addEventListener('click', () => {
+        const text = els.pasteInput.value.trim();
+        if (!text) return setStatus('Nincs beillesztett adat.', 'danger');
+        try { loadText(text, 'beillesztett adat'); } catch (err) { clearQuizState(); setStatus(err.message || 'A beillesztett adat nem olvasható.', 'danger'); }
+      });
+      els.startBtn.addEventListener('click', () => nextQuestion());
+      els.nextBtn.addEventListener('click', () => nextQuestion());
+      els.showAnswerBtn.addEventListener('click', () => {
+        if (state.currentIndex === null) return;
+        const rec = state.validRecords[state.currentIndex];
+        hideHelp();
+        showAnswerOnMap(rec);
+        state.answerShown = true;
+        state.mapClickEnabled = false;
+        els.resultText.textContent = 'A helyes pont megjelenítve. Kérj új helyet a folytatáshoz.';
+        els.resultText.className = 'status-line muted';
+        refreshButtons();
+      });
+
+      updateStats();
+      clearQuizState();
+      refreshButtons();
+      setStatus('Várakozás adatra.', 'muted');
+      showHelp();
+      setTimeout(() => map.invalidateSize(), 50);
+    });
+  </script>
+</body>
+</html>
