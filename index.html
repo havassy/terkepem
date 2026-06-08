@@ -96,7 +96,7 @@
     .compact { gap: var(--space-1); }
     .card {
       background: var(--color-surface-2);
-      border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent);
       border-radius: var(--radius-lg);
       padding: var(--space-2);
       box-shadow: var(--shadow-sm);
@@ -166,7 +166,7 @@
       max-width: 980px;
       margin: 0 auto;
       background: color-mix(in srgb, var(--color-surface-2) 96%, transparent);
-      border: 1px solid var(--color-border);
+      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-md);
       padding: var(--space-4);
@@ -327,6 +327,15 @@
             </select>
           </label>
         </section>
+		
+		<section class="card stack compact">
+          <h2>Újrakezdés</h2>
+          <p class="tiny danger">Az alábbi gomb minden adatot töröl a játékból!</p>
+          <div class="controls">
+            <button class="btn btn-primary" id="resetAllBtn" type="button">Minden adat törlése</button>
+          </div>
+        </section>
+		
       </div>
     </aside>
 
@@ -502,7 +511,8 @@ Tisza</pre>
         themeToggle: document.getElementById('themeToggle'),
         helpScreen: document.getElementById('helpScreen'),
         helpBtn: document.getElementById('helpBtn'),
-        closeHelpBtn: document.getElementById('closeHelpBtn')
+        closeHelpBtn: document.getElementById('closeHelpBtn'),
+		resetAllBtn: document.getElementById('resetAllBtn')
       };
 
       const state = {
@@ -587,6 +597,54 @@ Tisza</pre>
         els.overlayDistance.textContent = '—'; els.overlayAccuracy.textContent = '—'; els.overlayAnswer.textContent = '—';
         els.nextBtn.disabled = true; els.showAnswerBtn.disabled = true;
       }
+            function resetAllData() {
+        const hasAnything =
+          state.rawRecords.length ||
+          state.validRecords.length ||
+          state.invalidRecords.length ||
+          state.played > 0 ||
+          els.pasteInput.value.trim() ||
+          els.fileInput.value;
+
+        if (!hasAnything) {
+          setStatus('Várakozás adatra.', 'muted');
+          showHelp();
+          map.setView([47.2, 19.3], 6);
+          setTimeout(() => map.invalidateSize(), 50);
+          return;
+        }
+
+        const confirmed = window.confirm('Biztosan törlöd az összes betöltött adatot és az aktuális játékállapotot?');
+        if (!confirmed) return;
+
+        resetMapGraphics();
+        pointsLayer.clearLayers();
+
+        state.rawRecords = [];
+        state.validRecords = [];
+        state.invalidRecords = [];
+        state.remainingIndexes = [];
+        state.currentIndex = null;
+        state.played = 0;
+        state.quizActive = false;
+        state.answerShown = false;
+        state.mapClickEnabled = false;
+        state.dataBounds = null;
+        state.helpVisible = true;
+
+        els.fileInput.value = '';
+        els.pasteInput.value = '';
+        els.fileInfo.textContent = 'Még nincs betöltött adat.';
+
+        clearQuizState();
+        updateStats();
+        refreshButtons();
+        setStatus('Várakozás adatra.', 'muted');
+
+        showHelp();
+        map.setView([47.2, 19.3], 6);
+        setTimeout(() => map.invalidateSize(), 50);
+      }	  
       function haversineKm(lat1, lon1, lat2, lon2) {
         const R = 6371, toRad = deg => deg * Math.PI / 180;
         const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
@@ -755,6 +813,7 @@ Tisza</pre>
         els.resultText.className = 'status-line muted';
         refreshButtons();
       });
+      els.resetAllBtn.addEventListener('click', resetAllData);
 
       updateStats();
       clearQuizState();
