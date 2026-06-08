@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>diak-terkepi-gyakorlo-3</title>
+  <title>Térképem</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -108,6 +108,7 @@
       text-decoration: none;
       text-align: center;
       cursor: pointer;
+	  font-size: var(--text-base);
     }
     .btn:hover, .file-label:hover { transform: translateY(-1px); }
     .btn-primary, .file-label { background: var(--color-primary); color: var(--color-text-inverse); }
@@ -252,9 +253,7 @@
     <aside class="panel" aria-label="Vezérlőpanel">
       <div class="panel-scroll">
         <section class="stack compact">
-          <span class="pill">Prototípus</span>
-          <h1>Térképes helyismereti kvíz</h1>
-          <p class="tiny">CSV vagy KML betöltésből, illetve egyszerű beillesztéssel is használható.</p>
+          <h1>Térképem</h1>
         </section>
 
         <section class="card stack compact">
@@ -262,10 +261,10 @@
           <div class="controls">
             <label for="fileInput" class="file-label">Fájl kiválasztása</label>
             <input id="fileInput" type="file" accept=".csv,.kml,.xml,text/csv,application/vnd.google-earth.kml+xml" />
-            <button class="btn btn-secondary" id="loadDemoBtn" type="button">Demóadat</button>
+            <button class="btn btn-secondary" id="loadDemoBtn" type="button">Demóadat (próba)</button>
           </div>
           <label>
-            Vagy illeszd be ide a CSV vagy KML tartalmát
+            Vagy illeszd be ide a CSV tartalmát:
             <textarea id="pasteInput" placeholder="Példa CSV:\nname,latitude,longitude,type\nBudapest,47.4979,19.0402,város"></textarea>
           </label>
           <div class="controls">
@@ -281,7 +280,7 @@
         </section>
 
         <section class="card stack compact">
-          <h2>Adatellenőrzés</h2>
+          <h2>Adatállapot</h2>
           <div class="grid-2">
             <div class="stat"><div class="tiny muted">Összes rekord</div><div class="value" id="statAll">0</div></div>
             <div class="stat"><div class="tiny muted">Használható</div><div class="value" id="statValid">0</div></div>
@@ -298,7 +297,7 @@
           <div class="tiny muted">Aktuális feladat</div>
           <div class="place-name" id="questionText">Még nincs kérdés.</div>
           <div class="tiny" id="questionMeta">Tölts be adatot, majd indítsd el a kvízt.</div>
-          <div id="resultText" class="status-line muted">A távolságmérés itt fog megjelenni.</div>
+          <div id="resultText" class="status-line muted"></div>
           <div class="controls">
             <button class="btn btn-primary" id="startBtn" type="button" disabled>Kvíz indítása</button>
             <button class="btn btn-ghost" id="nextBtn" type="button" disabled>Következő hely</button>
@@ -342,8 +341,7 @@
             </svg>
           </div>
           <div>
-            <div style="font-weight:700; line-height:1.1;">diak-terkepi-gyakorlo-3</div>
-            <div class="tiny muted" style="line-height:1.15;">Leaflet + OpenStreetMap alapú kliensoldali prototípus</div>
+            <div style="font-weight:700; line-height:1.1;">Ebben a topográfia kvízben a felhasználó adhatja meg a gyakorolni kívánt helyeket.</div>
           </div>
         </div>
         <div class="controls" style="justify-content:flex-end; flex-wrap:nowrap; flex:0 0 auto;">
@@ -432,8 +430,10 @@ Tisza</pre>
               </section>
 
               <section class="help-block">
-                <h3>Hogyan töltsd be?</h3>
-                <p>A kapott CSV-t bemásolhatod a program szövegmezőjébe, majd kattints a „Beillesztett adat betöltése” gombra. Ugyanezt <code>.csv</code> fájlként is feltöltheted a „Fájl kiválasztása” gombbal.</p>
+                <h3>Használat nagyon röviden</h3>
+                <p>1) Töltsd fel vagy illeszd be a súgó leírása szerint elkészített adatokat!</p>
+				<p>2) Ha beillesztetted az adatokat, kattints a „Beillesztett adat betöltése” gombra!</p>
+				<p>3) Indítsd el a kvízt a „Kvíz indítása” gombbal!</p>
               </section>
 
               <section class="help-block full">
@@ -443,7 +443,7 @@ Tisza</pre>
 
               <section class="help-block full">
                 <h3>Használati tanács</h3>
-                <p>Kezdésnek érdemes 5–15 helyből álló listával próbálkozni. Ha a program nem tud egy sort használni, annak oka általában hiányzó vagy hibás koordináta, vagy rossz CSV-formátum.</p>
+                <p>Kezdésnek érdemes 5–15 helyből álló listával próbálkozni. Ha a program nem tud egy sort használni, annak oka általában hiányzó vagy hibás koordináta, vagy rossz CSV-formátum. Kísérletező kedvűek *.kml és *.xml fájlokkal is próbálkozhatnak.</p>
               </section>
             </div>
 
@@ -582,7 +582,7 @@ Tisza</pre>
         state.currentIndex = null; state.quizActive = false; state.answerShown = false; state.mapClickEnabled = false;
         els.questionText.textContent = 'Még nincs kérdés.';
         els.questionMeta.textContent = 'Tölts be adatot, majd indítsd el a kvízt.';
-        els.resultText.textContent = 'A távolságmérés itt fog megjelenni.';
+        els.resultText.textContent = '';
         els.resultText.className = 'status-line muted';
         els.overlayDistance.textContent = '—'; els.overlayAccuracy.textContent = '—'; els.overlayAnswer.textContent = '—';
         els.nextBtn.disabled = true; els.showAnswerBtn.disabled = true;
