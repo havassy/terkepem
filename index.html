@@ -96,7 +96,7 @@
     .compact { gap: var(--space-1); }
     .card {
       background: var(--color-surface-2);
-      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
       border-radius: var(--radius-lg);
       padding: var(--space-2);
       box-shadow: var(--shadow-sm);
@@ -108,7 +108,7 @@
       text-decoration: none;
       text-align: center;
       cursor: pointer;
-	  font-size: var(--text-base);
+      font-size: var(--text-base);
     }
     .btn:hover, .file-label:hover { transform: translateY(-1px); }
     .btn-primary, .file-label { background: var(--color-primary); color: var(--color-text-inverse); }
@@ -134,17 +134,20 @@
       min-height: 38px;
     }
     input[type="file"] { display: none; }
+
     .quiz-box {
       display: grid; gap: var(--space-1); padding: var(--space-2);
       background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 9%, var(--color-surface-2)), var(--color-surface-2));
       border: 1px solid color-mix(in srgb, var(--color-primary) 24%, transparent); border-radius: var(--radius-lg);
     }
-    .place-name { font-weight: 700; color: var(--color-text); font-size: 1.02rem; line-height: 1.18; }
+    .place-name, .question-current { font-weight: 700; color: var(--color-text); font-size: 1.02rem; line-height: 1.18; }
     .feedback-ok { color: var(--color-success); }
     .feedback-warn { color: var(--color-warning); }
     .feedback-bad { color: var(--color-error); }
+
     .map-wrap { position: relative; min-height: 0; background: #dbe7ee; }
     #map { width: 100%; height: calc(100vh - var(--topbar-height)); }
+
     .map-overlay {
       position: absolute; right: var(--space-3); bottom: var(--space-3); z-index: 500;
       width: min(300px, calc(100% - 1rem));
@@ -152,6 +155,7 @@
       border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-2);
       backdrop-filter: blur(10px);
     }
+
     .help-screen {
       position: absolute;
       inset: 0;
@@ -166,7 +170,7 @@
       max-width: 980px;
       margin: 0 auto;
       background: color-mix(in srgb, var(--color-surface-2) 96%, transparent);
-      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-md);
       padding: var(--space-4);
@@ -228,6 +232,7 @@
       white-space: pre-wrap;
       color: var(--color-text);
     }
+
     .list { display: grid; gap: 0.15rem; max-height: 72px; overflow: auto; }
     .pill { display: inline-flex; align-items: center; min-height: 22px; padding: 0 var(--space-2); border-radius: var(--radius-full); background: color-mix(in srgb, var(--color-primary) 14%, transparent); color: var(--color-primary); font-size: var(--text-xs); font-weight: 700; width: fit-content; }
     .theme-toggle { min-width: 38px; min-height: 38px; }
@@ -235,8 +240,24 @@
     .danger { color: var(--color-error); }
     .success { color: var(--color-success); }
     code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95em; }
+
     .leaflet-container { background: #dbe7ee; }
-    .leaflet-tooltip { display: none !important; }
+
+    .place-label {
+      background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+    }
+    .place-label::before {
+      display: none;
+    }
+
     @media (max-width: 960px) {
       html, body { overflow: auto; height: auto; }
       .app { grid-template-columns: 1fr; height: auto; overflow: visible; }
@@ -265,7 +286,9 @@
           </div>
           <label>
             Vagy illeszd be ide a CSV tartalmát:
-            <textarea id="pasteInput" placeholder="Példa CSV: name,latitude,longitude,type Budapest,47.4979,19.0402,város"></textarea>
+            <textarea id="pasteInput" placeholder="Példa CSV:
+name,latitude,longitude,type
+Budapest,47.4979,19.0402,város"></textarea>
           </label>
           <div class="controls">
             <button class="btn btn-primary" id="loadPasteBtn" type="button">Beillesztett adat betöltése</button>
@@ -290,6 +313,9 @@
           <div>
             <div class="tiny muted">Kimaradt rekordok</div>
             <div id="invalidList" class="list tiny muted"></div>
+          </div>
+          <div class="controls" style="margin-top: var(--space-2);">
+            <button class="btn btn-secondary" id="toggleLabelsBtn" type="button" disabled>Nevek mutatása</button>
           </div>
         </section>
 
@@ -327,15 +353,14 @@
             </select>
           </label>
         </section>
-		
-		<section class="card stack compact">
+
+        <section class="card stack compact">
           <h2>Újrakezdés</h2>
           <p class="tiny danger">Az alábbi gomb minden adatot töröl a játékból!</p>
           <div class="controls">
             <button class="btn btn-primary" id="resetAllBtn" type="button">Minden adat törlése</button>
           </div>
         </section>
-		
       </div>
     </aside>
 
@@ -358,6 +383,7 @@
           <button class="btn btn-secondary theme-toggle" id="themeToggle" type="button" aria-label="Téma váltása">🌙</button>
         </div>
       </header>
+
       <div class="map-wrap">
         <div id="map" aria-label="Kvíztérkép"></div>
 
@@ -441,8 +467,8 @@ Tisza</pre>
               <section class="help-block">
                 <h3>Használat nagyon röviden</h3>
                 <p>1) Töltsd fel vagy illeszd be a súgó leírása szerint elkészített adatokat!</p>
-				<p>2) Ha beillesztetted az adatokat, kattints a „Beillesztett adat betöltése” gombra!</p>
-				<p>3) Indítsd el a kvízt a „Kvíz indítása” gombbal!</p>
+                <p>2) Ha beillesztetted az adatokat, kattints a „Beillesztett adat betöltése” gombra!</p>
+                <p>3) Indítsd el a kvízt a „Kvíz indítása” gombbal!</p>
               </section>
 
               <section class="help-block full">
@@ -496,6 +522,7 @@ Tisza</pre>
         statInvalid: document.getElementById('statInvalid'),
         statPlayed: document.getElementById('statPlayed'),
         invalidList: document.getElementById('invalidList'),
+        toggleLabelsBtn: document.getElementById('toggleLabelsBtn'),
         questionText: document.getElementById('questionText'),
         questionMeta: document.getElementById('questionMeta'),
         resultText: document.getElementById('resultText'),
@@ -512,28 +539,53 @@ Tisza</pre>
         helpScreen: document.getElementById('helpScreen'),
         helpBtn: document.getElementById('helpBtn'),
         closeHelpBtn: document.getElementById('closeHelpBtn'),
-		resetAllBtn: document.getElementById('resetAllBtn')
+        resetAllBtn: document.getElementById('resetAllBtn')
       };
 
       const state = {
-        rawRecords: [], validRecords: [], invalidRecords: [], remainingIndexes: [], currentIndex: null,
-        played: 0, quizActive: false, answerShown: false, answerMarker: null, guessMarker: null, line: null,
-        mapClickEnabled: false, basemaps: {}, activeBasemap: null,
-        dataBounds: null, helpVisible: true
+        rawRecords: [],
+        validRecords: [],
+        invalidRecords: [],
+        remainingIndexes: [],
+        currentIndex: null,
+        played: 0,
+        quizActive: false,
+        answerShown: false,
+        answerMarker: null,
+        guessMarker: null,
+        line: null,
+        mapClickEnabled: false,
+        basemaps: {},
+        activeBasemap: null,
+        dataBounds: null,
+        helpVisible: true,
+        labelsVisible: false,
+        labelMarkers: []
       };
 
       const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([47.2, 19.3], 6);
+
       state.basemaps = {
-        'carto-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO' }),
-        'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap közreműködők' }),
-        'carto-dark-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO' })
+        'carto-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+          subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO'
+        }),
+        'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19, attribution: '&copy; OpenStreetMap közreműködők'
+        }),
+        'carto-dark-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+          subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO'
+        })
       };
+
       state.activeBasemap = state.basemaps['carto-nolabels'].addTo(map);
       const pointsLayer = L.layerGroup().addTo(map);
 
-      const theme = { current: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' };
+      const theme = {
+        current: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      };
       document.documentElement.setAttribute('data-theme', theme.current);
       els.themeToggle.textContent = theme.current === 'dark' ? '☀️' : '🌙';
+
       els.themeToggle.addEventListener('click', () => {
         theme.current = theme.current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', theme.current);
@@ -552,6 +604,7 @@ Tisza</pre>
         state.helpVisible = true;
         els.helpScreen.hidden = false;
       }
+
       function hideHelp() {
         state.helpVisible = false;
         els.helpScreen.hidden = true;
@@ -562,16 +615,86 @@ Tisza</pre>
           map.setView([47.2, 19.3], 6);
         }
       }
+
       els.helpBtn.addEventListener('click', showHelp);
       els.closeHelpBtn.addEventListener('click', hideHelp);
 
-      function setStatus(text, cls = 'muted') { els.statusLine.className = `status-line ${cls}`; els.statusLine.textContent = text; }
-      function escapeHtml(text) { return String(text ?? '').replace(/[&<>\"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
-      function normalizeName(record) { return record.Name || record.name || record.Név || record.nev || record.Place || record.place || record.Title || 'Névtelen hely'; }
-      function parseFloatSafe(value) { if (value === null || value === undefined || value === '') return null; const normalized = String(value).trim().replace(',', '.'); const num = Number(normalized); return Number.isFinite(num) ? num : null; }
-      function getLat(record) { return parseFloatSafe(record.Latitude ?? record.latitude ?? record.lat ?? record.Lat ?? record.y); }
-      function getLng(record) { return parseFloatSafe(record.Longitude ?? record.longitude ?? record.lng ?? record.lon ?? record.Lon ?? record.Long ?? record.x); }
-      function validCoord(lat, lng) { return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180; }
+      function setStatus(text, cls = 'muted') {
+        els.statusLine.className = `status-line ${cls}`;
+        els.statusLine.textContent = text;
+      }
+
+      function escapeHtml(text) {
+        return String(text ?? '').replace(/[&<>"]/g, ch => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;'
+        }[ch]));
+      }
+
+      function normalizeName(record) {
+        return record.Name || record.name || record.Név || record.nev || record.Place || record.place || record.Title || 'Névtelen hely';
+      }
+
+      function parseFloatSafe(value) {
+        if (value === null || value === undefined || value === '') return null;
+        const normalized = String(value).trim().replace(',', '.');
+        const num = Number(normalized);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function getLat(record) {
+        return parseFloatSafe(record.Latitude ?? record.latitude ?? record.lat ?? record.Lat ?? record.y);
+      }
+
+      function getLng(record) {
+        return parseFloatSafe(record.Longitude ?? record.longitude ?? record.lng ?? record.lon ?? record.Lon ?? record.Long ?? record.x);
+      }
+
+      function validCoord(lat, lng) {
+        return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+      }
+
+      function clearPointLabels() {
+        state.labelMarkers.forEach(marker => {
+          if (map.hasLayer(marker)) map.removeLayer(marker);
+        });
+        state.labelMarkers = [];
+        state.labelsVisible = false;
+        els.toggleLabelsBtn.textContent = 'Nevek mutatása';
+      }
+
+      function showPointLabels() {
+        clearPointLabels();
+
+        state.labelMarkers = state.validRecords.map(rec => {
+          const marker = L.marker([rec.lat, rec.lng], {
+            interactive: false,
+            opacity: 0
+          }).addTo(map);
+
+          marker.bindTooltip(rec.name, {
+            permanent: true,
+            direction: 'right',
+            offset: [8, 0],
+            opacity: 0.92,
+            className: 'place-label'
+          });
+
+          marker.openTooltip();
+          return marker;
+        });
+
+        state.labelsVisible = true;
+        els.toggleLabelsBtn.textContent = 'Nevek elrejtése';
+      }
+
+      function togglePointLabels() {
+        if (!state.validRecords.length) return;
+        if (state.labelsVisible) clearPointLabels();
+        else showPointLabels();
+      }
 
       function updateStats() {
         els.statAll.textContent = state.rawRecords.length;
@@ -582,22 +705,31 @@ Tisza</pre>
           ? state.invalidRecords.slice(0, 6).map(item => `<div>${escapeHtml(item.name || 'Ismeretlen rekord')} – ${escapeHtml(item.reason || 'hibás rekord')}</div>`).join('')
           : '<div>Nincs kihagyott rekord.</div>';
       }
+
       function resetMapGraphics() {
         if (state.answerMarker) { map.removeLayer(state.answerMarker); state.answerMarker = null; }
         if (state.guessMarker) { map.removeLayer(state.guessMarker); state.guessMarker = null; }
         if (state.line) { map.removeLayer(state.line); state.line = null; }
       }
+
       function clearQuizState() {
         resetMapGraphics();
-        state.currentIndex = null; state.quizActive = false; state.answerShown = false; state.mapClickEnabled = false;
+        state.currentIndex = null;
+        state.quizActive = false;
+        state.answerShown = false;
+        state.mapClickEnabled = false;
         els.questionText.textContent = 'Még nincs kérdés.';
         els.questionMeta.textContent = 'Tölts be adatot, majd indítsd el a kvízt.';
         els.resultText.textContent = '';
         els.resultText.className = 'status-line muted';
-        els.overlayDistance.textContent = '—'; els.overlayAccuracy.textContent = '—'; els.overlayAnswer.textContent = '—';
-        els.nextBtn.disabled = true; els.showAnswerBtn.disabled = true;
+        els.overlayDistance.textContent = '—';
+        els.overlayAccuracy.textContent = '—';
+        els.overlayAnswer.textContent = '—';
+        els.nextBtn.disabled = true;
+        els.showAnswerBtn.disabled = true;
       }
-            function resetAllData() {
+
+      function resetAllData() {
         const hasAnything =
           state.rawRecords.length ||
           state.validRecords.length ||
@@ -617,6 +749,7 @@ Tisza</pre>
         const confirmed = window.confirm('Biztosan törlöd az összes betöltött adatot és az aktuális játékállapotot?');
         if (!confirmed) return;
 
+        clearPointLabels();
         resetMapGraphics();
         pointsLayer.clearLayers();
 
@@ -644,19 +777,26 @@ Tisza</pre>
         showHelp();
         map.setView([47.2, 19.3], 6);
         setTimeout(() => map.invalidateSize(), 50);
-      }	  
+      }
+
       function haversineKm(lat1, lon1, lat2, lon2) {
-        const R = 6371, toRad = deg => deg * Math.PI / 180;
-        const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
-        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        const R = 6371;
+        const toRad = deg => deg * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
         return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       }
+
       function classifyDistance(distanceKm) {
         const threshold = Math.max(1, Number(els.thresholdInput.value) || 50);
         if (distanceKm <= threshold) return { text: 'Találat', cls: 'feedback-ok' };
         if (distanceKm <= threshold * 3) return { text: 'Közel volt', cls: 'feedback-warn' };
         return { text: 'Messze volt', cls: 'feedback-bad' };
       }
+
       function fitToValidRecords() {
         if (!state.validRecords.length) return;
         const bounds = L.latLngBounds(state.validRecords.map(r => [r.lat, r.lng]));
@@ -664,45 +804,70 @@ Tisza</pre>
         state.dataBounds = bounds.pad(0.18);
         if (!state.helpVisible) map.fitBounds(state.dataBounds);
       }
+
       function resetViewToDataBounds() {
         if (state.dataBounds && state.dataBounds.isValid() && !state.helpVisible) {
           map.fitBounds(state.dataBounds);
         }
       }
+
       function refreshButtons() {
         const hasData = state.validRecords.length > 0;
         els.startBtn.disabled = !hasData;
         els.nextBtn.disabled = !hasData || !state.quizActive;
         els.showAnswerBtn.disabled = !hasData || !state.quizActive || state.answerShown;
+        els.toggleLabelsBtn.disabled = !hasData;
       }
-      function rebuildRemaining() { state.remainingIndexes = state.validRecords.map((_, idx) => idx); }
+
+      function rebuildRemaining() {
+        state.remainingIndexes = state.validRecords.map((_, idx) => idx);
+      }
+
       function nextQuestion() {
         if (!state.validRecords.length) return setStatus('Nincs használható rekord.', 'danger');
         if (!state.remainingIndexes.length) rebuildRemaining();
 
+        clearPointLabels();
         hideHelp();
         resetMapGraphics();
         resetViewToDataBounds();
         state.answerShown = false;
         state.mapClickEnabled = true;
         state.quizActive = true;
+
         const mode = els.modeSelect.value;
-        let pickPos = 0; if (mode === 'random') pickPos = Math.floor(Math.random() * state.remainingIndexes.length);
+        let pickPos = 0;
+        if (mode === 'random') pickPos = Math.floor(Math.random() * state.remainingIndexes.length);
+
         state.currentIndex = state.remainingIndexes.splice(pickPos, 1)[0];
         const rec = state.validRecords[state.currentIndex];
+
         els.questionText.textContent = rec.name;
         els.questionMeta.textContent = 'Kattints a térképre a feltételezett helyen.';
-        els.resultText.textContent = ''; els.resultText.className = 'status-line muted';
-        els.overlayDistance.textContent = '—'; els.overlayAccuracy.textContent = '—'; els.overlayAnswer.textContent = '—';
+        els.resultText.textContent = '';
+        els.resultText.className = 'status-line muted';
+        els.overlayDistance.textContent = '—';
+        els.overlayAccuracy.textContent = '—';
+        els.overlayAnswer.textContent = '—';
+
         refreshButtons();
       }
+
       function showAnswerOnMap(record) {
         if (state.answerMarker) return;
-        state.answerMarker = L.circleMarker([record.lat, record.lng], { radius: 9, color: '#1f7a1f', weight: 3, fillColor: '#1f7a1f', fillOpacity: 0.28 }).addTo(map).bindPopup(`Helyes válasz: ${escapeHtml(record.name)}`);
+        state.answerMarker = L.circleMarker([record.lat, record.lng], {
+          radius: 9,
+          color: '#1f7a1f',
+          weight: 3,
+          fillColor: '#1f7a1f',
+          fillOpacity: 0.28
+        }).addTo(map).bindPopup(`Helyes válasz: ${escapeHtml(record.name)}`);
         els.overlayAnswer.textContent = `${record.name} (${record.lat.toFixed(4)}, ${record.lng.toFixed(4)})`;
       }
+
       function handleGuess(latlng) {
         if (!state.mapClickEnabled || state.currentIndex === null || state.helpVisible) return;
+
         const rec = state.validRecords[state.currentIndex];
         state.mapClickEnabled = false;
         state.answerShown = true;
@@ -741,40 +906,106 @@ Tisza</pre>
         updateStats();
         refreshButtons();
       }
+
       map.on('click', e => handleGuess(e.latlng));
 
       function useRecords(records, sourceLabel) {
-        state.rawRecords = records; state.validRecords = []; state.invalidRecords = []; state.played = 0;
+        clearPointLabels();
+        state.rawRecords = records;
+        state.validRecords = [];
+        state.invalidRecords = [];
+        state.played = 0;
+
         records.forEach((record, idx) => {
-          const name = normalizeName(record), lat = getLat(record), lng = getLng(record);
-          if (!validCoord(lat, lng)) return state.invalidRecords.push({ name, reason: 'hiányzó vagy hibás koordináta', raw: record, index: idx });
-          state.validRecords.push({ name, lat, lng, country: record.Country || record.country || record.Ország || '', region: record.Region || record.region || record.Megye || '', type: record.Type || record.type || '', raw: record });
+          const name = normalizeName(record);
+          const lat = getLat(record);
+          const lng = getLng(record);
+
+          if (!validCoord(lat, lng)) {
+            state.invalidRecords.push({
+              name,
+              reason: 'hiányzó vagy hibás koordináta',
+              raw: record,
+              index: idx
+            });
+            return;
+          }
+
+          state.validRecords.push({
+            name,
+            lat,
+            lng,
+            country: record.Country || record.country || record.Ország || '',
+            region: record.Region || record.region || record.Megye || '',
+            type: record.Type || record.type || '',
+            raw: record
+          });
         });
-        rebuildRemaining(); clearQuizState(); updateStats(); refreshButtons(); fitToValidRecords(); pointsLayer.clearLayers();
-        state.validRecords.forEach(rec => L.circleMarker([rec.lat, rec.lng], { radius: 4, weight: 1, color: '#01696f', fillColor: '#01696f', fillOpacity: 0.5, interactive: false }).addTo(pointsLayer));
+
+        rebuildRemaining();
+        clearQuizState();
+        updateStats();
+        refreshButtons();
+        fitToValidRecords();
+        pointsLayer.clearLayers();
+
+        state.validRecords.forEach(rec => {
+          L.circleMarker([rec.lat, rec.lng], {
+            radius: 4,
+            weight: 1,
+            color: '#01696f',
+            fillColor: '#01696f',
+            fillOpacity: 0.5,
+            interactive: false
+          }).addTo(pointsLayer);
+        });
+
         els.fileInfo.textContent = `${sourceLabel} · ${state.validRecords.length} használható / ${state.rawRecords.length} összes rekord`;
-        setStatus(state.validRecords.length ? 'Az adat betöltve, indítható a kvíz.' : 'A beolvasás sikerült, de nincs használható koordinátás rekord.', state.validRecords.length ? 'success' : 'danger');
+        setStatus(
+          state.validRecords.length
+            ? 'Az adat betöltve, indítható a kvíz.'
+            : 'A beolvasás sikerült, de nincs használható koordinátás rekord.',
+          state.validRecords.length ? 'success' : 'danger'
+        );
+
         if (state.validRecords.length) hideHelp();
       }
+
       function parseCsv(text, sourceLabel) {
-        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, dynamicTyping: false });
-        if (parsed.errors?.length && !parsed.data?.length) throw new Error('A CSV nem olvasható be.');
+        const parsed = Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: false
+        });
+        if (parsed.errors?.length && !parsed.data?.length) {
+          throw new Error('A CSV nem olvasható be.');
+        }
         useRecords(parsed.data || [], sourceLabel);
       }
+
       function parseKml(text, sourceLabel) {
         const xml = new DOMParser().parseFromString(text, 'application/xml');
         const parserError = xml.querySelector('parsererror');
         if (parserError) throw new Error('A KML/XML fájl hibás.');
+
         const placemarks = [...xml.getElementsByTagName('Placemark')];
         const records = placemarks.map(pm => {
           const name = pm.getElementsByTagName('name')[0]?.textContent?.trim() || 'Névtelen hely';
           const coords = pm.getElementsByTagName('coordinates')[0]?.textContent?.trim() || '';
           let lng = null, lat = null;
-          if (coords) { const parts = coords.split(/\s+/)[0].split(','); lng = parseFloatSafe(parts[0]); lat = parseFloatSafe(parts[1]); }
+
+          if (coords) {
+            const parts = coords.split(/\s+/)[0].split(',');
+            lng = parseFloatSafe(parts[0]);
+            lat = parseFloatSafe(parts[1]);
+          }
+
           return { Name: name, Latitude: lat, Longitude: lng };
         });
+
         useRecords(records, sourceLabel);
       }
+
       function detectPasteType(text) {
         const choice = els.pasteTypeSelect.value;
         if (choice !== 'auto') return choice;
@@ -782,29 +1013,67 @@ Tisza</pre>
         if (t.startsWith('<') && /<kml|<Placemark|<Document/i.test(t)) return 'kml';
         return 'csv';
       }
+
       function loadText(text, sourceLabel) {
         const type = detectPasteType(text);
-        if (type === 'kml') parseKml(text, sourceLabel); else parseCsv(text, sourceLabel);
+        if (type === 'kml') parseKml(text, sourceLabel);
+        else parseCsv(text, sourceLabel);
       }
+
       function loadFile(file) {
         const reader = new FileReader();
-        reader.onload = () => { try { loadText(String(reader.result || ''), file.name || 'ismeretlen fájl'); } catch (err) { clearQuizState(); setStatus(err.message || 'Hiba történt a beolvasáskor.', 'danger'); } };
+        reader.onload = () => {
+          try {
+            loadText(String(reader.result || ''), file.name || 'ismeretlen fájl');
+          } catch (err) {
+            clearQuizState();
+            setStatus(err.message || 'Hiba történt a beolvasáskor.', 'danger');
+          }
+        };
         reader.onerror = () => setStatus('Nem sikerült beolvasni a fájlt.', 'danger');
         reader.readAsText(file, 'utf-8');
       }
-      const demoCsv = `name,latitude,longitude,type\nBudapest,47.4979,19.0402,város\nSzeged,46.2530,20.1414,város\nPécs,46.0727,18.2323,város\nDebrecen,47.5316,21.6273,város\nBalaton,46.8333,17.7333,tó\nTokaj,48.1190,21.4080,város\nKékes,47.8722,20.0106,hegy\nGyőr,47.6875,17.6504,város\nMiskolc,48.1031,20.7784,város\nSopron,47.6817,16.5845,város\nPontatlan példa,,,egyéb`;
-      els.fileInput.addEventListener('change', e => { const file = e.target.files?.[0]; if (file) loadFile(file); });
+
+      const demoCsv = `name,latitude,longitude,type
+Budapest,47.4979,19.0402,város
+Szeged,46.2530,20.1414,város
+Pécs,46.0727,18.2323,város
+Debrecen,47.5316,21.6273,város
+Balaton,46.8333,17.7333,tó
+Tokaj,48.1190,21.4080,város
+Kékes,47.8722,20.0106,hegy
+Győr,47.6875,17.6504,város
+Miskolc,48.1031,20.7784,város
+Sopron,47.6817,16.5845,város
+Pontatlan példa,,,egyéb`;
+
+      els.fileInput.addEventListener('change', e => {
+        const file = e.target.files?.[0];
+        if (file) loadFile(file);
+      });
+
       els.loadDemoBtn.addEventListener('click', () => loadText(demoCsv, 'demó.csv'));
+
       els.loadPasteBtn.addEventListener('click', () => {
         const text = els.pasteInput.value.trim();
         if (!text) return setStatus('Nincs beillesztett adat.', 'danger');
-        try { loadText(text, 'beillesztett adat'); } catch (err) { clearQuizState(); setStatus(err.message || 'A beillesztett adat nem olvasható.', 'danger'); }
+
+        try {
+          loadText(text, 'beillesztett adat');
+        } catch (err) {
+          clearQuizState();
+          setStatus(err.message || 'A beillesztett adat nem olvasható.', 'danger');
+        }
       });
+
+      els.toggleLabelsBtn.addEventListener('click', togglePointLabels);
       els.startBtn.addEventListener('click', () => nextQuestion());
       els.nextBtn.addEventListener('click', () => nextQuestion());
+
       els.showAnswerBtn.addEventListener('click', () => {
         if (state.currentIndex === null) return;
         const rec = state.validRecords[state.currentIndex];
+        clearPointLabels();
         hideHelp();
         showAnswerOnMap(rec);
         state.answerShown = true;
@@ -813,6 +1082,7 @@ Tisza</pre>
         els.resultText.className = 'status-line muted';
         refreshButtons();
       });
+
       els.resetAllBtn.addEventListener('click', resetAllData);
 
       updateStats();
