@@ -1,10 +1,21 @@
-# Felhasználói útmutató
+# Térképem
 
-A program földrajzi helyekből készít térképes kvízt. Használatához egy egyszerű CSV-adatlista kell, amelyben minden hely külön sorban szerepel.
+A Térképem egy böngészőben futó, térképes földrajzi kvíz. A felhasználó saját helylistát tölthet be, majd a program a térképen kattintva kérdezi vissza az egyes helyek pozícióját.
 
-## Milyen adat kell?
+## Mit tud a program?
 
-A program a legbiztosabban ezt a formátumot kezeli:
+- Saját helylista betöltése CSV-fájlból vagy beillesztett szövegből
+- KML/XML alapú helyadatok beolvasása
+- Demóadat gyors kipróbáláshoz
+- Kvíz véletlen sorrendben vagy betöltési sorrendben
+- Állítható találati küszöb kilométerben
+- Több alaptérkép közötti váltás
+- A helyes válasz megjelenítése
+- Újrakezdés funkció, amely törli a betöltött adatokat és visszaállítja a kezdő állapotot
+
+## Támogatott adatforma
+
+A program a legbiztosabban a következő CSV-formátumot kezeli:
 
 ```text
 name,latitude,longitude,type
@@ -16,72 +27,49 @@ Kékes,47.8720,20.0080,hegy
 Mátra,47.8700,20.0000,hegység
 ```
 
-## Mit jelentenek az oszlopok?
+### Kötelező oszlopok
 
-- `name`: a hely neve
-- `latitude`: földrajzi szélesség decimális fokban
-- `longitude`: földrajzi hosszúság decimális fokban
-- `type`: a hely típusa, például ország, város, folyó, tó, hegység, hegy, sziget, régió, megye, egyéb
+- `name` – a hely neve
+- `latitude` – földrajzi szélesség decimális fokban
+- `longitude` – földrajzi hosszúság decimális fokban
+- `type` – a hely típusa, például ország, város, folyó, tó, hegység, hegy, sziget, régió, megye vagy egyéb
 
-## Hogyan készíthetek ilyen adatot?
+## Használat
 
-A legegyszerűbb megoldás, ha a gyakorolni kívánt földrajzi neveket bemásolod egy MI-nek, és kéred, hogy készítsen belőlük többsoros CSV-t a szükséges oszlopokkal. Ezután a kapott CSV-t bemásolhatod közvetlenül a programba, vagy elmentheted `.csv` fájlként. Ha a CSV-formátumú szöveget bemásolással használod, nagyon fontos, hogy karakterre pontosan másold be, mert egy hiányzó, plusz vagy megváltozott karakter is hibát okozhat, és a program hibát jelezhet.
+1. Tölts fel egy `.csv`, `.kml` vagy `.xml` fájlt, vagy illeszd be a CSV tartalmát.
+2. Kattints a **Beillesztett adat betöltése** gombra, ha szöveget használsz.
+3. Indítsd el a kvízt a **Kvíz indítása** gombbal.
+4. Kattints a térképre ott, ahol szerinted a keresett hely található.
+5. A program megmutatja a távolságot, a pontosságot és a helyes választ.
+6. Az **Újrakezdés** gombbal minden adat törölhető, és a program visszaáll a kezdő állapotra.
 
-## Mintaprompt MI-hez
+## Adat-előkészítés
 
-Az alábbi promptot másold be az MI-nek, és a végére írd oda a saját helylistádat:
+A legegyszerűbb megoldás, ha a gyakorolni kívánt helynevekből egy MI segítségével készítesz egységes CSV-listát a fenti oszlopokkal. A bemásolt szöveg legyen pontos, mert egy hibás fejléc vagy elcsúszott mező miatt a program rekordokat hagyhat ki. [cite:1]
+
+### Rövid mintaprompt
 
 ```text
-Készíts egy földrajzi/helyismereti kvízhez használható, tiszta és egységes adatállományt CSV formátumban.
-
-A kimenet kötelező oszlopai:
+Készíts földrajzi kvízhez használható CSV-t az alábbi oszlopokkal:
 name,latitude,longitude,type
 
 Szabályok:
-- A `name` mezőbe az objektum rövid, egyértelmű magyar neve kerüljön.
-- A `latitude` és `longitude` mezőbe decimális fokban add meg a koordinátákat.
-- Csak olyan rekord maradjon benne, amelyhez megbízható koordináta tartozik.
-- Ha nincs biztos koordináta, inkább hagyd ki a rekordot.
-- A `type` mezőt minden rekordnál kötelező kitölteni.
-- A `type` mező csak az alábbi értékek egyikét kaphatja:
-  ország, város, folyó, tó, hegység, hegy, sziget, régió, megye, egyéb
-- Ha az objektum típusa egyértelműen megállapítható, a fenti listából a legjobban illő kategóriát használd.
-- Ha nincs megfelelő kategória, vagy a besorolás bizonytalan, akkor a `type` értéke legyen: egyéb
-- Ne használj eltérő írásmódokat vagy szinonimákat, például ne írj ilyet: település, varos, nagyváros, county, settlement. Ezek helyett mindig a megadott fix kategóriák egyikét használd.
-- Folyók esetén a koordináta a torkolat környékére essen, de ne közvetlenül a tengerparti vagy nyílt vízi találkozási pontra; a pont legyen kissé a folyón felfelé, még egyértelműen a folyó medrében vagy közvetlen folyószakaszán.
-- A válasz több soros, valódi CSV legyen, minden rekord külön új sorban szerepeljen.
-- Ne szerepeljen magyarázó szöveg, csak a kész CSV.
-
-A válasz kizárólag a kész CSV legyen.
+- csak megbízható koordinátás rekord maradjon
+- a koordináták decimális fokban legyenek
+- a `type` mező mindig legyen kitöltve
+- a válasz kizárólag valódi CSV legyen
 
 A feldolgozandó helyek:
-IDE ÍRD A SAJÁT HELYLISTÁDAT
+IDE ÍRD A HELYLISTÁT
 ```
 
-## Példa helylistára
+## Fontos megjegyzések
 
-A prompt végére például ezt írhatod:
+- A program a hibás vagy hiányzó koordinátás sorokat kihagyhatja.
+- Az MI által adott koordináták nem mindig pontosak.
+- Folyók, hegységek, régiók és más nagy kiterjedésű objektumok esetén különösen érdemes ellenőrizni az adatokat.
+- Első próbához érdemes 5–15 helyből álló listát használni.
 
-```text
-A feldolgozandó helyek:
-Magyarország
-Budapest
-Balaton
-Duna
-Kékes
-Mátra
-Szeged
-Tisza
-```
+## Gyors teszt
 
-## Hogyan töltsd be?
-
-A kapott CSV-t bemásolhatod a program szövegmezőjébe, majd kattints a „Beillesztett adat betöltése” gombra. Ugyanezt `.csv` fájlként is feltöltheted a „Fájl kiválasztása” gombbal.
-
-## Fontos figyelmeztetés
-
-Az MI által megadott koordináták nem mindig pontosak. Különösen folyók, hegységek, régiók vagy nagy kiterjedésű földrajzi objektumok esetén érdemes az adatokat ellenőrizni térképen, mielőtt élesben használod a kvízt.
-
-## Használati tanács
-
-Kezdésnek érdemes 5–15 helyből álló listával próbálkozni. Ha a program nem tud egy sort használni, annak oka általában hiányzó vagy hibás koordináta, vagy rossz CSV-formátum.
+Ha csak kipróbálnád az alkalmazást, használd a beépített **Demóadat** gombot.
