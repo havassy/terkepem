@@ -21,7 +21,7 @@
       --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-border: #d4d1ca; --color-divider: #dcd9d5;
       --color-text: #28251d; --color-text-muted: #676660; --color-text-inverse: #f9f8f4; --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-success: #437a22; --color-warning: #964219; --color-error: #a12c7b;
       --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08); --shadow-lg: 0 10px 24px rgba(0,0,0,0.14);
       --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
       --font-body: 'Inter', system-ui, sans-serif;
       --topbar-height: 68px;
@@ -29,8 +29,9 @@
     [data-theme="dark"] {
       --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-surface-offset: #1d1c1a; --color-border: #393836; --color-divider: #262523;
       --color-text: #cdccca; --color-text-muted: #a5a4a1; --color-text-inverse: #171614; --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-success: #6daa45; --color-warning: #bb653b; --color-error: #d163a7;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.3); --shadow-lg: 0 10px 24px rgba(0,0,0,0.38);
     }
+
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; }
     body {
@@ -40,18 +41,22 @@
       color: var(--color-text);
       background: var(--color-bg);
     }
+
     button, input, select, textarea { font: inherit; }
     textarea { resize: vertical; }
+
     .sr-only {
       position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
       overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
     }
+
     .app {
       display: grid;
       grid-template-columns: 360px 1fr;
       height: 100vh;
       overflow: hidden;
     }
+
     .panel {
       background: var(--color-surface);
       border-right: 1px solid var(--color-border);
@@ -61,6 +66,7 @@
       padding: var(--space-3);
       scrollbar-gutter: stable;
     }
+
     .panel-scroll {
       display: grid;
       gap: var(--space-2);
@@ -68,12 +74,14 @@
       min-height: min-content;
       padding-right: 2px;
     }
+
     .main {
       display: grid;
       grid-template-rows: var(--topbar-height) 1fr;
       min-height: 0;
       overflow: hidden;
     }
+
     .topbar {
       display: flex;
       align-items: center;
@@ -83,69 +91,93 @@
       border-bottom: 1px solid var(--color-border);
       background: color-mix(in srgb, var(--color-surface-2) 88%, transparent);
     }
+
     .brand { display: flex; align-items: center; gap: var(--space-2); min-width: 0; overflow: hidden; }
     .logo { width: 34px; height: 34px; border-radius: 9px; background: var(--color-primary); color: var(--color-text-inverse); display: grid; place-items: center; flex: 0 0 auto; }
     .logo svg { width: 18px; height: 18px; }
+
     h1 { font-size: var(--text-xl); line-height: 1.02; margin: 0; }
     h2 { font-size: var(--text-lg); line-height: 1.1; margin: 0 0 var(--space-1); }
     h3 { margin: 0; font-size: 1rem; }
     p { margin: 0; color: var(--color-text-muted); }
+
     .muted { color: var(--color-text-muted); }
     .tiny { font-size: var(--text-xs); }
     .stack { display: grid; gap: var(--space-2); min-height: 0; }
     .compact { gap: var(--space-1); }
+
     .card {
       background: var(--color-surface-2);
-      border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent);
       border-radius: var(--radius-lg);
       padding: var(--space-2);
       box-shadow: var(--shadow-sm);
     }
+
     .btn, .file-label {
       display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
       min-height: 38px; padding: 0 var(--space-3); border-radius: var(--radius-md); border: 1px solid transparent;
-      transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+      transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
       text-decoration: none;
       text-align: center;
       cursor: pointer;
       font-size: var(--text-base);
     }
+
     .btn:hover, .file-label:hover { transform: translateY(-1px); }
     .btn-primary, .file-label { background: var(--color-primary); color: var(--color-text-inverse); }
     .btn-primary:hover, .file-label:hover { background: var(--color-primary-hover); }
     .btn-secondary { background: var(--color-surface-offset); color: var(--color-text); border-color: var(--color-border); }
     .btn-secondary:hover { background: var(--color-surface-2); }
     .btn-ghost { background: transparent; color: var(--color-text); border-color: var(--color-border); }
+    .btn-danger {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+    }
+    .btn-danger:hover {
+      background: var(--color-primary-hover);
+    }
+
     .controls { display: flex; flex-wrap: wrap; gap: var(--space-2); }
     .controls > * { flex: 1 1 150px; min-width: 0; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+
     .stat { background: var(--color-surface-offset); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius: var(--radius-md); padding: var(--space-2); }
     .stat .value { font-weight: 700; font-size: 1.05rem; color: var(--color-text); margin-top: 2px; }
+
     label { display: grid; gap: 0.2rem; font-size: var(--text-sm); font-weight: 600; }
     input[type="number"], select, textarea {
       width: 100%; min-height: 38px; padding: 0.4rem 0.6rem; border-radius: var(--radius-md);
       border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text);
     }
     textarea { min-height: 88px; }
+
     #pasteTypeSelect {
       white-space: normal;
       line-height: 1.15;
       height: auto;
       min-height: 38px;
     }
+
     input[type="file"] { display: none; }
 
     .quiz-box {
       display: grid; gap: var(--space-1); padding: var(--space-2);
       background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 9%, var(--color-surface-2)), var(--color-surface-2));
-      border: 1px solid color-mix(in srgb, var(--color-primary) 24%, transparent); border-radius: var(--radius-lg);
+      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent); border-radius: var(--radius-lg);
     }
-    .place-name, .question-current { font-weight: 700; color: var(--color-text); font-size: 1.02rem; line-height: 1.18; }
+
+    .place-name { font-weight: 700; color: var(--color-text); font-size: 1.02rem; line-height: 1.18; }
     .feedback-ok { color: var(--color-success); }
     .feedback-warn { color: var(--color-warning); }
     .feedback-bad { color: var(--color-error); }
 
-    .map-wrap { position: relative; min-height: 0; background: #dbe7ee; }
+    .map-wrap {
+      position: relative;
+      min-height: 0;
+      background: #dbe7ee;
+    }
+
     #map { width: 100%; height: calc(100vh - var(--topbar-height)); }
 
     .map-overlay {
@@ -154,6 +186,72 @@
       background: color-mix(in srgb, var(--color-surface) 92%, transparent);
       border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-2);
       backdrop-filter: blur(10px);
+    }
+
+    .map-toast-wrap {
+      position: absolute;
+      top: var(--space-3);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1200;
+      width: min(520px, calc(100% - 1.5rem));
+      pointer-events: none;
+      display: grid;
+      justify-items: center;
+    }
+
+    .map-toast {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+      transition: opacity 220ms ease, transform 220ms ease;
+      pointer-events: none;
+      width: 100%;
+      max-width: 520px;
+      border-radius: var(--radius-xl);
+      padding: 0.9rem 1rem;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid transparent;
+      backdrop-filter: blur(12px);
+      color: #fff;
+      text-align: center;
+    }
+
+    .map-toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .map-toast.success {
+      background: color-mix(in srgb, var(--color-success) 86%, black 14%);
+      border-color: color-mix(in srgb, var(--color-success) 75%, white 25%);
+    }
+
+    .map-toast.warning {
+      background: color-mix(in srgb, var(--color-warning) 88%, black 12%);
+      border-color: color-mix(in srgb, var(--color-warning) 72%, white 28%);
+    }
+
+    .map-toast.info {
+      background: color-mix(in srgb, var(--color-primary) 84%, black 16%);
+      border-color: color-mix(in srgb, var(--color-primary) 70%, white 30%);
+    }
+
+    .map-toast-title {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.18rem;
+      color: #fff;
+    }
+
+    .map-toast-text {
+      font-size: var(--text-sm);
+      line-height: 1.3;
+      color: rgba(255,255,255,0.94);
+    }
+
+    .restart-card p {
+      color: color-mix(in srgb, var(--color-error) 75%, var(--color-text-muted));
     }
 
     .help-screen {
@@ -166,17 +264,19 @@
         linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface-2) 96%, transparent));
     }
     .help-screen[hidden] { display: none; }
+
     .help-card {
       max-width: 980px;
       margin: 0 auto;
       background: color-mix(in srgb, var(--color-surface-2) 96%, transparent);
-      border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 48%, transparent);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-md);
       padding: var(--space-4);
       display: grid;
       gap: var(--space-4);
     }
+
     .help-hero {
       display: grid;
       gap: var(--space-2);
@@ -185,11 +285,13 @@
       background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-offset)), var(--color-surface-2));
       border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
     }
+
     .help-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-3);
     }
+
     .help-block {
       background: var(--color-surface);
       border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
@@ -198,13 +300,17 @@
       display: grid;
       gap: var(--space-2);
     }
+
     .help-block.full { grid-column: 1 / -1; }
+
     .help-block ul {
       margin: 0;
       padding-left: 1.1rem;
       color: var(--color-text-muted);
     }
+
     .help-block li + li { margin-top: 0.35rem; }
+
     .help-actions {
       display: flex;
       flex-wrap: wrap;
@@ -212,6 +318,7 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .help-note {
       padding: var(--space-2);
       border-radius: var(--radius-md);
@@ -219,6 +326,7 @@
       border: 1px solid color-mix(in srgb, var(--color-warning) 26%, transparent);
       color: var(--color-text);
     }
+
     .code-box {
       margin: 0;
       padding: var(--space-2);
@@ -239,24 +347,23 @@
     .status-line { min-height: 18px; font-size: var(--text-sm); }
     .danger { color: var(--color-error); }
     .success { color: var(--color-success); }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95em; }
 
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95em; }
     .leaflet-container { background: #dbe7ee; }
 
     .place-label {
       background: color-mix(in srgb, var(--color-surface) 94%, transparent);
-      border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-sm);
       color: var(--color-text);
       font-family: var(--font-body);
       font-size: var(--text-xs);
       font-weight: 600;
-      padding: 0.15rem 0.4rem;
+      line-height: 1.15;
+      padding: 0.18rem 0.42rem;
     }
-    .place-label::before {
-      display: none;
-    }
+    .place-label::before { display: none; }
 
     @media (max-width: 960px) {
       html, body { overflow: auto; height: auto; }
@@ -265,6 +372,7 @@
       .main { overflow: visible; }
       #map { height: 68vh; min-height: 420px; }
       .help-grid { grid-template-columns: 1fr; }
+      .map-toast-wrap { top: var(--space-2); width: calc(100% - 1rem); }
     }
   </style>
 </head>
@@ -319,10 +427,10 @@ Budapest,47.4979,19.0402,város"></textarea>
           </div>
         </section>
 
-        <section class="card stack compact">
-          <h2>Aktuális kérdés</h2>
-          <div class="question-current" id="questionText">Még nincs kérdés.</div>
-          <div class="tiny muted" id="questionMeta">Tölts be adatot, majd indítsd el a kvízt.</div>
+        <section class="quiz-box">
+          <div class="tiny muted">Aktuális feladat</div>
+          <div class="place-name" id="questionText">Még nincs kérdés.</div>
+          <div class="tiny" id="questionMeta">Tölts be adatot, majd indítsd el a kvízt.</div>
           <div id="resultText" class="status-line muted"></div>
           <div class="controls">
             <button class="btn btn-primary" id="startBtn" type="button" disabled>Kvíz indítása</button>
@@ -352,13 +460,17 @@ Budapest,47.4979,19.0402,város"></textarea>
               <option value="carto-dark-nolabels">CARTO Dark Matter, feliratok nélkül</option>
             </select>
           </label>
+          <label>
+            Névcímkék minimum zoomszintje
+            <input id="labelZoomInput" type="number" min="1" max="20" step="1" value="9" />
+          </label>
         </section>
 
-        <section class="card stack compact">
+        <section class="card stack compact restart-card">
           <h2>Újrakezdés</h2>
-          <p class="tiny danger">Az alábbi gomb minden adatot töröl a játékból!</p>
+          <p>Az alábbi gomb minden adatot töröl a játékból.</p>
           <div class="controls">
-            <button class="btn btn-primary" id="resetAllBtn" type="button">Minden adat törlése</button>
+            <button class="btn btn-danger" id="resetAllBtn" type="button">Minden adat törlése</button>
           </div>
         </section>
       </div>
@@ -386,6 +498,13 @@ Budapest,47.4979,19.0402,város"></textarea>
 
       <div class="map-wrap">
         <div id="map" aria-label="Kvíztérkép"></div>
+
+        <div class="map-toast-wrap" aria-live="polite" aria-atomic="true">
+          <div id="mapToast" class="map-toast" hidden>
+            <div id="mapToastTitle" class="map-toast-title"></div>
+            <div id="mapToastText" class="map-toast-text"></div>
+          </div>
+        </div>
 
         <section id="helpScreen" class="help-screen" aria-label="Felhasználói útmutató">
           <div class="help-card">
@@ -522,7 +641,6 @@ Tisza</pre>
         statInvalid: document.getElementById('statInvalid'),
         statPlayed: document.getElementById('statPlayed'),
         invalidList: document.getElementById('invalidList'),
-        toggleLabelsBtn: document.getElementById('toggleLabelsBtn'),
         questionText: document.getElementById('questionText'),
         questionMeta: document.getElementById('questionMeta'),
         resultText: document.getElementById('resultText'),
@@ -532,6 +650,9 @@ Tisza</pre>
         thresholdInput: document.getElementById('thresholdInput'),
         modeSelect: document.getElementById('modeSelect'),
         basemapSelect: document.getElementById('basemapSelect'),
+        labelZoomInput: document.getElementById('labelZoomInput'),
+        toggleLabelsBtn: document.getElementById('toggleLabelsBtn'),
+        resetAllBtn: document.getElementById('resetAllBtn'),
         overlayDistance: document.getElementById('overlayDistance'),
         overlayAccuracy: document.getElementById('overlayAccuracy'),
         overlayAnswer: document.getElementById('overlayAnswer'),
@@ -539,7 +660,9 @@ Tisza</pre>
         helpScreen: document.getElementById('helpScreen'),
         helpBtn: document.getElementById('helpBtn'),
         closeHelpBtn: document.getElementById('closeHelpBtn'),
-        resetAllBtn: document.getElementById('resetAllBtn')
+        mapToast: document.getElementById('mapToast'),
+        mapToastTitle: document.getElementById('mapToastTitle'),
+        mapToastText: document.getElementById('mapToastText')
       };
 
       const state = {
@@ -559,30 +682,24 @@ Tisza</pre>
         activeBasemap: null,
         dataBounds: null,
         helpVisible: true,
-        labelsVisible: false,
-        labelMarkers: []
+        labelsEnabled: false,
+        labelMarkers: [],
+        toastTimer: null
       };
 
       const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([47.2, 19.3], 6);
 
       state.basemaps = {
-        'carto-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-          subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO'
-        }),
-        'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19, attribution: '&copy; OpenStreetMap közreműködők'
-        }),
-        'carto-dark-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-          subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO'
-        })
+        'carto-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO' }),
+        'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap közreműködők' }),
+        'carto-dark-nolabels': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap közreműködők, &copy; CARTO' })
       };
-
       state.activeBasemap = state.basemaps['carto-nolabels'].addTo(map);
-      const pointsLayer = L.layerGroup().addTo(map);
 
-      const theme = {
-        current: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      };
+      const pointsLayer = L.layerGroup().addTo(map);
+      const labelsLayer = L.layerGroup().addTo(map);
+
+      const theme = { current: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' };
       document.documentElement.setAttribute('data-theme', theme.current);
       els.themeToggle.textContent = theme.current === 'dark' ? '☀️' : '🌙';
 
@@ -591,6 +708,20 @@ Tisza</pre>
         document.documentElement.setAttribute('data-theme', theme.current);
         els.themeToggle.textContent = theme.current === 'dark' ? '☀️' : '🌙';
       });
+
+      function showMapToast(title, text = '', type = 'info', duration = 2400) {
+        clearTimeout(state.toastTimer);
+        els.mapToast.hidden = false;
+        els.mapToast.className = `map-toast ${type}`;
+        els.mapToastTitle.textContent = title;
+        els.mapToastText.textContent = text || '';
+        requestAnimationFrame(() => els.mapToast.classList.add('show'));
+
+        state.toastTimer = setTimeout(() => {
+          els.mapToast.classList.remove('show');
+          setTimeout(() => { els.mapToast.hidden = true; }, 220);
+        }, duration);
+      }
 
       function setBasemap(key) {
         const next = state.basemaps[key];
@@ -603,6 +734,7 @@ Tisza</pre>
       function showHelp() {
         state.helpVisible = true;
         els.helpScreen.hidden = false;
+        syncLabelsVisibility(false);
       }
 
       function hideHelp() {
@@ -614,6 +746,7 @@ Tisza</pre>
         } else {
           map.setView([47.2, 19.3], 6);
         }
+        syncLabelsVisibility(false);
       }
 
       els.helpBtn.addEventListener('click', showHelp);
@@ -625,12 +758,7 @@ Tisza</pre>
       }
 
       function escapeHtml(text) {
-        return String(text ?? '').replace(/[&<>"]/g, ch => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;'
-        }[ch]));
+        return String(text ?? '').replace(/[&<>\"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
       }
 
       function normalizeName(record) {
@@ -656,44 +784,90 @@ Tisza</pre>
         return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
       }
 
-      function clearPointLabels() {
-        state.labelMarkers.forEach(marker => {
-          if (map.hasLayer(marker)) map.removeLayer(marker);
-        });
-        state.labelMarkers = [];
-        state.labelsVisible = false;
-        els.toggleLabelsBtn.textContent = 'Nevek mutatása';
+      function getLabelMinZoom() {
+        const value = Number(els.labelZoomInput.value);
+        return Math.min(20, Math.max(1, Number.isFinite(value) ? value : 9));
       }
 
-      function showPointLabels() {
-        clearPointLabels();
+      function updateLabelButtonText() {
+        els.toggleLabelsBtn.textContent = state.labelsEnabled ? 'Nevek elrejtése' : 'Nevek mutatása';
+      }
 
+      function rebuildLabels() {
+        labelsLayer.clearLayers();
         state.labelMarkers = state.validRecords.map(rec => {
-          const marker = L.marker([rec.lat, rec.lng], {
-            interactive: false,
-            opacity: 0
-          }).addTo(map);
-
+          const marker = L.marker([rec.lat, rec.lng], { interactive: false, opacity: 0 });
           marker.bindTooltip(rec.name, {
             permanent: true,
             direction: 'right',
             offset: [8, 0],
-            opacity: 0.92,
+            opacity: 0.94,
             className: 'place-label'
           });
-
-          marker.openTooltip();
           return marker;
         });
-
-        state.labelsVisible = true;
-        els.toggleLabelsBtn.textContent = 'Nevek elrejtése';
       }
 
-      function togglePointLabels() {
+      function syncLabelsVisibility(showToast = false) {
+        labelsLayer.clearLayers();
+
+        if (!state.labelsEnabled) return;
         if (!state.validRecords.length) return;
-        if (state.labelsVisible) clearPointLabels();
-        else showPointLabels();
+        if (state.helpVisible) return;
+        if (state.quizActive) return;
+
+        const currentZoom = map.getZoom();
+        const minZoom = getLabelMinZoom();
+
+        if (currentZoom < minZoom) {
+          if (showToast) {
+            showMapToast(
+              'A névcímkék még nem látszanak',
+              `Nagyíts tovább legalább ${minZoom}-es szintig. Most: ${currentZoom}.`,
+              'warning',
+              2800
+            );
+          }
+          return;
+        }
+
+        state.labelMarkers.forEach(marker => labelsLayer.addLayer(marker));
+
+        if (showToast) {
+          showMapToast(
+            'A névcímkék megjelentek',
+            `A térkép elérte a szükséges nagyítást (${currentZoom}).`,
+            'success',
+            2200
+          );
+        }
+      }
+
+      function disableLabels(showToast = true) {
+        state.labelsEnabled = false;
+        labelsLayer.clearLayers();
+        updateLabelButtonText();
+        if (showToast) {
+          showMapToast(
+            'A névcímkék kikapcsolva',
+            'A térképen most csak a pontok látszanak.',
+            'info',
+            2000
+          );
+        }
+      }
+
+      function enableLabels() {
+        if (!state.validRecords.length) return;
+        state.labelsEnabled = true;
+        updateLabelButtonText();
+        syncLabelsVisibility(true);
+      }
+
+      function toggleLabels() {
+        if (!state.validRecords.length) return;
+        if (state.labelsEnabled) disableLabels(true);
+        else enableLabels();
       }
 
       function updateStats() {
@@ -727,66 +901,13 @@ Tisza</pre>
         els.overlayAnswer.textContent = '—';
         els.nextBtn.disabled = true;
         els.showAnswerBtn.disabled = true;
-      }
-
-      function resetAllData() {
-        const hasAnything =
-          state.rawRecords.length ||
-          state.validRecords.length ||
-          state.invalidRecords.length ||
-          state.played > 0 ||
-          els.pasteInput.value.trim() ||
-          els.fileInput.value;
-
-        if (!hasAnything) {
-          setStatus('Várakozás adatra.', 'muted');
-          showHelp();
-          map.setView([47.2, 19.3], 6);
-          setTimeout(() => map.invalidateSize(), 50);
-          return;
-        }
-
-        const confirmed = window.confirm('Biztosan törlöd az összes betöltött adatot és az aktuális játékállapotot?');
-        if (!confirmed) return;
-
-        clearPointLabels();
-        resetMapGraphics();
-        pointsLayer.clearLayers();
-
-        state.rawRecords = [];
-        state.validRecords = [];
-        state.invalidRecords = [];
-        state.remainingIndexes = [];
-        state.currentIndex = null;
-        state.played = 0;
-        state.quizActive = false;
-        state.answerShown = false;
-        state.mapClickEnabled = false;
-        state.dataBounds = null;
-        state.helpVisible = true;
-
-        els.fileInput.value = '';
-        els.pasteInput.value = '';
-        els.fileInfo.textContent = 'Még nincs betöltött adat.';
-
-        clearQuizState();
-        updateStats();
-        refreshButtons();
-        setStatus('Várakozás adatra.', 'muted');
-
-        showHelp();
-        map.setView([47.2, 19.3], 6);
-        setTimeout(() => map.invalidateSize(), 50);
+        syncLabelsVisibility(false);
       }
 
       function haversineKm(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const toRad = deg => deg * Math.PI / 180;
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        const R = 6371, toRad = deg => deg * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
         return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       }
 
@@ -827,7 +948,7 @@ Tisza</pre>
         if (!state.validRecords.length) return setStatus('Nincs használható rekord.', 'danger');
         if (!state.remainingIndexes.length) rebuildRemaining();
 
-        clearPointLabels();
+        disableLabels(false);
         hideHelp();
         resetMapGraphics();
         resetViewToDataBounds();
@@ -841,7 +962,6 @@ Tisza</pre>
 
         state.currentIndex = state.remainingIndexes.splice(pickPos, 1)[0];
         const rec = state.validRecords[state.currentIndex];
-
         els.questionText.textContent = rec.name;
         els.questionMeta.textContent = 'Kattints a térképre a feltételezett helyen.';
         els.resultText.textContent = '';
@@ -849,25 +969,19 @@ Tisza</pre>
         els.overlayDistance.textContent = '—';
         els.overlayAccuracy.textContent = '—';
         els.overlayAnswer.textContent = '—';
-
         refreshButtons();
       }
 
       function showAnswerOnMap(record) {
         if (state.answerMarker) return;
         state.answerMarker = L.circleMarker([record.lat, record.lng], {
-          radius: 9,
-          color: '#1f7a1f',
-          weight: 3,
-          fillColor: '#1f7a1f',
-          fillOpacity: 0.28
+          radius: 9, color: '#1f7a1f', weight: 3, fillColor: '#1f7a1f', fillOpacity: 0.28
         }).addTo(map).bindPopup(`Helyes válasz: ${escapeHtml(record.name)}`);
         els.overlayAnswer.textContent = `${record.name} (${record.lat.toFixed(4)}, ${record.lng.toFixed(4)})`;
       }
 
       function handleGuess(latlng) {
         if (!state.mapClickEnabled || state.currentIndex === null || state.helpVisible) return;
-
         const rec = state.validRecords[state.currentIndex];
         state.mapClickEnabled = false;
         state.answerShown = true;
@@ -907,30 +1021,64 @@ Tisza</pre>
         refreshButtons();
       }
 
+      function resetAllData() {
+        state.rawRecords = [];
+        state.validRecords = [];
+        state.invalidRecords = [];
+        state.remainingIndexes = [];
+        state.currentIndex = null;
+        state.played = 0;
+        state.quizActive = false;
+        state.answerShown = false;
+        state.mapClickEnabled = false;
+        state.dataBounds = null;
+        state.labelMarkers = [];
+
+        resetMapGraphics();
+        pointsLayer.clearLayers();
+        labelsLayer.clearLayers();
+        disableLabels(false);
+
+        els.fileInput.value = '';
+        els.pasteInput.value = '';
+        els.fileInfo.textContent = 'Még nincs betöltött adat.';
+        setStatus('Várakozás adatra.', 'muted');
+
+        clearQuizState();
+        updateStats();
+        refreshButtons();
+
+        showHelp();
+        map.setView([47.2, 19.3], 6);
+
+        showMapToast(
+          'Minden adat törölve',
+          'A játék visszaállt a kezdő állapotba.',
+          'info',
+          2400
+        );
+      }
+
       map.on('click', e => handleGuess(e.latlng));
+      map.on('zoomend', () => {
+        if (state.labelsEnabled && !state.helpVisible && !state.quizActive) {
+          syncLabelsVisibility(false);
+        }
+      });
 
       function useRecords(records, sourceLabel) {
-        clearPointLabels();
         state.rawRecords = records;
         state.validRecords = [];
         state.invalidRecords = [];
         state.played = 0;
+        disableLabels(false);
 
         records.forEach((record, idx) => {
-          const name = normalizeName(record);
-          const lat = getLat(record);
-          const lng = getLng(record);
-
+          const name = normalizeName(record), lat = getLat(record), lng = getLng(record);
           if (!validCoord(lat, lng)) {
-            state.invalidRecords.push({
-              name,
-              reason: 'hiányzó vagy hibás koordináta',
-              raw: record,
-              index: idx
-            });
+            state.invalidRecords.push({ name, reason: 'hiányzó vagy hibás koordináta', raw: record, index: idx });
             return;
           }
-
           state.validRecords.push({
             name,
             lat,
@@ -942,14 +1090,15 @@ Tisza</pre>
           });
         });
 
+        rebuildLabels();
         rebuildRemaining();
         clearQuizState();
         updateStats();
         refreshButtons();
         fitToValidRecords();
-        pointsLayer.clearLayers();
 
-        state.validRecords.forEach(rec => {
+        pointsLayer.clearLayers();
+        state.validRecords.forEach(rec =>
           L.circleMarker([rec.lat, rec.lng], {
             radius: 4,
             weight: 1,
@@ -957,8 +1106,8 @@ Tisza</pre>
             fillColor: '#01696f',
             fillOpacity: 0.5,
             interactive: false
-          }).addTo(pointsLayer);
-        });
+          }).addTo(pointsLayer)
+        );
 
         els.fileInfo.textContent = `${sourceLabel} · ${state.validRecords.length} használható / ${state.rawRecords.length} összes rekord`;
         setStatus(
@@ -969,17 +1118,12 @@ Tisza</pre>
         );
 
         if (state.validRecords.length) hideHelp();
+        syncLabelsVisibility(false);
       }
 
       function parseCsv(text, sourceLabel) {
-        const parsed = Papa.parse(text, {
-          header: true,
-          skipEmptyLines: true,
-          dynamicTyping: false
-        });
-        if (parsed.errors?.length && !parsed.data?.length) {
-          throw new Error('A CSV nem olvasható be.');
-        }
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, dynamicTyping: false });
+        if (parsed.errors?.length && !parsed.data?.length) throw new Error('A CSV nem olvasható be.');
         useRecords(parsed.data || [], sourceLabel);
       }
 
@@ -987,22 +1131,18 @@ Tisza</pre>
         const xml = new DOMParser().parseFromString(text, 'application/xml');
         const parserError = xml.querySelector('parsererror');
         if (parserError) throw new Error('A KML/XML fájl hibás.');
-
         const placemarks = [...xml.getElementsByTagName('Placemark')];
         const records = placemarks.map(pm => {
           const name = pm.getElementsByTagName('name')[0]?.textContent?.trim() || 'Névtelen hely';
           const coords = pm.getElementsByTagName('coordinates')[0]?.textContent?.trim() || '';
           let lng = null, lat = null;
-
           if (coords) {
             const parts = coords.split(/\s+/)[0].split(',');
             lng = parseFloatSafe(parts[0]);
             lat = parseFloatSafe(parts[1]);
           }
-
           return { Name: name, Latitude: lat, Longitude: lng };
         });
-
         useRecords(records, sourceLabel);
       }
 
@@ -1016,8 +1156,7 @@ Tisza</pre>
 
       function loadText(text, sourceLabel) {
         const type = detectPasteType(text);
-        if (type === 'kml') parseKml(text, sourceLabel);
-        else parseCsv(text, sourceLabel);
+        if (type === 'kml') parseKml(text, sourceLabel); else parseCsv(text, sourceLabel);
       }
 
       function loadFile(file) {
@@ -1057,7 +1196,6 @@ Pontatlan példa,,,egyéb`;
       els.loadPasteBtn.addEventListener('click', () => {
         const text = els.pasteInput.value.trim();
         if (!text) return setStatus('Nincs beillesztett adat.', 'danger');
-
         try {
           loadText(text, 'beillesztett adat');
         } catch (err) {
@@ -1066,15 +1204,23 @@ Pontatlan példa,,,egyéb`;
         }
       });
 
-      els.toggleLabelsBtn.addEventListener('click', togglePointLabels);
+      els.toggleLabelsBtn.addEventListener('click', toggleLabels);
+
+      els.labelZoomInput.addEventListener('input', () => {
+        if (!state.labelsEnabled) return;
+        syncLabelsVisibility(false);
+      });
+
+      els.resetAllBtn.addEventListener('click', resetAllData);
+
       els.startBtn.addEventListener('click', () => nextQuestion());
       els.nextBtn.addEventListener('click', () => nextQuestion());
 
       els.showAnswerBtn.addEventListener('click', () => {
         if (state.currentIndex === null) return;
         const rec = state.validRecords[state.currentIndex];
-        clearPointLabels();
         hideHelp();
+        disableLabels(false);
         showAnswerOnMap(rec);
         state.answerShown = true;
         state.mapClickEnabled = false;
@@ -1083,8 +1229,7 @@ Pontatlan példa,,,egyéb`;
         refreshButtons();
       });
 
-      els.resetAllBtn.addEventListener('click', resetAllData);
-
+      updateLabelButtonText();
       updateStats();
       clearQuizState();
       refreshButtons();
