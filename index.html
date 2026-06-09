@@ -786,6 +786,32 @@
         width: calc(100% - 1rem);
         padding: var(--space-2);
       }
+	  
+	  .help-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.btn-copy {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0 0.8rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .help-block-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-copy {
+    width: 100%;
+  }
+}
     }
   </style>
 </head>
@@ -979,7 +1005,7 @@ Budapest,47.4979,19.0402,város"
           </div>
           <div>
             <div style="font-weight:700; line-height:1.1;">
-              Ebben a topográfia kvízben a felhasználó adhatja meg a gyakorolni kívánt helyeket.
+              Ebben a topográfia kvízben a felhasználó adhatja meg a gyakorolni kívánt helyeket. Perplexity.ai használatával készítette Havassy András.
             </div>
           </div>
         </div>
@@ -1044,7 +1070,7 @@ Mátra,47.8700,20.0000,hegység</pre>
                 </ul>
               </section>
 
-              <section class="help-block full">
+              <section class="help-block">
                 <h3>Hogyan készíthetek ilyen adatot?</h3>
                 <p>
                   A legegyszerűbb megoldás, ha a gyakorolni kívánt földrajzi neveket bemásolod egy
@@ -1060,6 +1086,37 @@ Mátra,47.8700,20.0000,hegység</pre>
                 <p>2) Válassz témát, ha csak egy típust szeretnél gyakorolni.</p>
                 <p>3) Indítsd el a kvízt a „Kvíz indítása” gombbal.</p>
               </section>
+
+              <section class="help-block full">
+  <div class="help-block-head">
+    <h3>Mintaprompt MI-hez</h3>
+    <button class="btn btn-secondary btn-copy" id="copyPromptBtn" type="button">Prompt másolása</button>
+  </div>
+  <pre class="code-box" id="promptBox">Készíts egy földrajzi/helyismereti kvízhez használható, tiszta és egységes adatállományt CSV formátumban.
+
+A kimenet kötelező oszlopai:
+name,latitude,longitude,type
+
+Szabályok:
+- A `name` mezőbe az objektum rövid, egyértelmű magyar neve kerüljön.
+- A `latitude` és `longitude` mezőbe decimális fokban add meg a koordinátákat.
+- Csak olyan rekord maradjon benne, amelyhez megbízható koordináta tartozik.
+- Ha nincs biztos koordináta, inkább hagyd ki a rekordot.
+- A `type` mezőt minden rekordnál kötelező kitölteni.
+- A `type` mező csak az alábbi értékek egyikét kaphatja:
+  ország, város, folyó, tó, hegység, hegy, sziget, régió, megye, egyéb
+- Ha az objektum típusa egyértelműen megállapítható, a fenti listából a legjobban illő kategóriát használd.
+- Ha nincs megfelelő kategória, vagy a besorolás bizonytalan, akkor a `type` értéke legyen: egyéb
+- Ne használj eltérő írásmódokat vagy szinonimákat, például ne írj ilyet: település, varos, nagyváros, county, settlement. Ezek helyett mindig a megadott fix kategóriák egyikét használd.
+- Folyók esetén a koordináta a torkolat környékére essen, de ne közvetlenül a tengerparti vagy nyílt vízi találkozási pontra; a pont legyen kissé a folyón felfelé, még egyértelműen a folyó medrében vagy közvetlen folyószakaszán.
+- A válasz több soros, valódi CSV legyen, minden rekord külön új sorban szerepeljen.
+- Ne szerepeljen magyarázó szöveg, csak a kész CSV.
+
+A válasz kizárólag a kész CSV legyen.
+
+A feldolgozandó helyek:
+IDE ÍRD A SAJÁT HELYLISTÁDAT</pre>
+</section>
 
               <section class="help-block full">
                 <h3>Fontos figyelmeztetés</h3>
@@ -1170,7 +1227,8 @@ Mátra,47.8700,20.0000,hegység</pre>
         closeHelpBtn: document.getElementById("closeHelpBtn"),
         mapToast: document.getElementById("mapToast"),
         mapToastTitle: document.getElementById("mapToastTitle"),
-        mapToastText: document.getElementById("mapToastText")
+        mapToastText: document.getElementById("mapToastText"),
+		copyPromptBtn: document.getElementById('copyPromptBtn'),
       };
 
       const state = {
@@ -1992,7 +2050,23 @@ Pontatlan példa,,,egyéb`;
           setStatus(err.message || "A beillesztett adat nem olvasható.", "danger");
         }
       });
+      
+	  els.copyPromptBtn?.addEventListener('click', async () => {
+  const promptText = document.getElementById('promptBox')?.textContent || '';
 
+  if (!promptText.trim()) {
+    setStatus('Nincs másolható prompt.', 'danger');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(promptText);
+    setStatus('A mintaprompt vágólapra másolva.', 'success');
+  } catch (err) {
+    setStatus('A másolás nem sikerült ebben a böngészőben.', 'danger');
+  }
+});
+	  
       els.toggleLabelsBtn.addEventListener("click", toggleLabels);
 
       els.labelZoomInput.addEventListener("input", () => {
