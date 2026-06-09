@@ -925,6 +925,7 @@ Budapest,47.4979,19.0402,város"
         </section>
 
         <section class="quiz-box">
+		  <h2>Kvíz</h2>
           <div class="tiny muted">Aktuális feladat</div>
           <div class="place-name" id="questionText">Még nincs kérdés.</div>
           <div class="tiny" id="questionMeta">Tölts be adatot, majd indítsd el a kvízt.</div>
@@ -1076,15 +1077,16 @@ Mátra,47.8700,20.0000,hegység</pre>
                   A legegyszerűbb megoldás, ha a gyakorolni kívánt földrajzi neveket bemásolod egy
                   MI-nek, és kéred, hogy készítsen belőlük többsoros CSV-t a szükséges oszlopokkal.
                   Ezután a kapott CSV-t bemásolhatod közvetlenül a programba, vagy elmentheted
-                  <code>.csv</code> fájlként.
+                  <code>.csv</code> fájlként. Használd az alábbi mintapromptot!
                 </p>
               </section>
 
               <section class="help-block">
                 <h3>Használat nagyon röviden</h3>
-                <p>1) Töltsd fel vagy illeszd be az adatokat.</p>
-                <p>2) Válassz témát, ha csak egy típust szeretnél gyakorolni.</p>
-                <p>3) Indítsd el a kvízt a „Kvíz indítása” gombbal.</p>
+                <p>1) ADATBEVITEL: Töltsd fel vagy illeszd be az adatokat. Próbát a Demóadattal játszhatsz.</p>
+				<p>2) ADATÁLLAPOT: Csak visszajelzés. A Nevek mutatásával megnézheted a betöltött pontok neveit. Lehet, hogy kell használdod a zumot!</p>
+                <p>3) TÉMASZŰRÉS: Válassz témát, ha csak egy típust (pl. város) szeretnél gyakorolni.</p>
+                <p>4) KVÍZ: Indítsd el a kvízt a „Kvíz indítása” gombbal.</p>
               </section>
 
               <section class="help-block full">
@@ -1623,7 +1625,7 @@ IDE ÍRD A SAJÁT HELYLISTÁDAT</pre>
         state.validRecords.forEach((rec) => {
           const pointColor = getTypeColor(rec.type);
           L.circleMarker([rec.lat, rec.lng], {
-            radius: 4,
+            radius: 5,
             weight: 1,
             color: pointColor,
             fillColor: pointColor,
